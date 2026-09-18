@@ -1,0 +1,38 @@
+# Ear Training
+
+เว็บแอปฝึกฟังโน๊ตในแต่ละคีย์ (functional ear training)
+
+- **เรียนรู้คีย์** ดูโน๊ตของสเกลบนคีย์บอร์ด ทั้ง 12 คีย์ในโหมดเมเจอร์, natural minor, harmonic minor และ melodic minor พร้อม key signature และฟังสเกล คอร์ดโทนิก และ cadence
+- **แบบทดสอบ** แอปเล่น cadence (I–IV–V–I หรือ i–iv–V–i) เพื่อบอกคีย์ แล้วสุ่มเล่นโน๊ตในคีย์ ให้ผู้ใช้ตอบว่าเป็นขั้นที่เท่าไร ถ้าตอบผิดจะเล่นโน๊ตไล่กลับไปหาโทนิก (resolve) ให้ฟัง และถ้าเปิดตัวเลือกไว้ ขั้นที่เคยตอบผิดบ่อยจะถูกสุ่มออกบ่อยขึ้น
+- **สถิติ** ความแม่นยำสะสมแยกตามคีย์และขั้น (heatmap) และประวัติรอบที่ฝึก เก็บไว้ใน localStorage ของเบราว์เซอร์
+
+## การรัน
+
+```bash
+npm install
+npm run dev      # http://localhost:5173
+npm test         # unit tests (Vitest)
+npm run build    # build ไปที่ dist/ สำหรับ deploy เป็นเว็บ static
+```
+
+## โครงสร้าง
+
+| โฟลเดอร์ | หน้าที่ |
+|---|---|
+| `src/theory/` | ทฤษฎีดนตรี: โน๊ตในคีย์, การสะกดชื่อโน๊ต, ชื่อเรียกขั้น (ใช้ `@tonaljs/tonal`) |
+| `src/audio/` | เล่นเสียงด้วย Tone.js (เสียงเปียโน Salamander และใช้เสียงสังเคราะห์แทนถ้าโหลดไม่สำเร็จ), คอร์ด cadence |
+| `src/quiz/` | สุ่มคำถาม, เส้นทาง resolve, สถิติ, state ของแบบทดสอบ |
+| `src/components/` | คีย์บอร์ดเปียโน (SVG), ตัวเลือกคีย์, หน้าจอต่างๆ ของแบบทดสอบ |
+| `src/storage/` | บันทึกสถิติสะสมลง localStorage |
+| `src/pages/` | หน้าเรียนรู้คีย์ หน้าแบบทดสอบ และหน้าสถิติ |
+
+## สิ่งที่วางแผนทำต่อ
+
+- แสดงโน๊ตบนบรรทัด 5 เส้น (VexFlow)
+- ทายทำนองสั้นๆ หลายโน๊ต และโน๊ตนอกคีย์ (chromatic)
+- ทำเป็น PWA ใช้แบบออฟไลน์ได้ (เก็บไฟล์เสียงเปียโนไว้ในโปรเจค)
+
+## Deploy
+
+เป็นเว็บ static ทั้งหมด (`npm run build` → โฟลเดอร์ `dist/`) นำขึ้น Vercel, Netlify, Cloudflare Pages หรือ GitHub Pages ได้
+ใช้ build command `npm run build` และ output directory `dist`
