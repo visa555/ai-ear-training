@@ -1,13 +1,16 @@
 import { useEffect, useState, type ReactNode } from 'react'
 import { ensureAudio, playNotes, playSequence, stopAll } from '../audio/engine'
 import { describePosition, fixedSolfege, naturalRange, staffNote } from '../notation/staff'
-import { keyboardRange } from '../theory/keys'
 import { Mascot } from './Mascot'
 import { PianoKeyboard, type KeyMark } from './PianoKeyboard'
 import { Staff } from './Staff'
 
 const LESSON_NOTES = naturalRange('C4', 'C5')
-const byMidi = new Map(LESSON_NOTES.map((n) => [n.midi, n]))
+/** ตัวอย่างโน้ตเส้นน้อยทั้งใต้และเหนือบรรทัด */
+const LEDGER_DEMO = ['A3', 'B3', 'C4', 'G5', 'A5']
+/** โน้ตทุกตัวที่แตะแล้วมีคำอธิบาย (A3 ถึง A5) */
+const byMidi = new Map(naturalRange('A3', 'A5').map((n) => [n.midi, n]))
+const RANGE = { from: 57, to: 83 }
 
 function noteChip(name: string) {
   const n = staffNote(name)
@@ -67,9 +70,8 @@ export function StaffLesson() {
   }
 
   const activeMidi = active ? staffNote(active).midi : null
-  const range = keyboardRange(60, 72)
   const marks: Record<number, KeyMark> = {}
-  for (const n of LESSON_NOTES) {
+  for (const n of byMidi.values()) {
     marks[n.midi] = {
       tone: n.name === 'C4' ? 'tonic' : 'scale',
       degree: colored ? n.letterIndex + 1 : undefined,
@@ -107,7 +109,7 @@ export function StaffLesson() {
           />
         </div>
 
-        <PianoKeyboard {...range} marks={marks} active={activeMidi === null ? [] : [activeMidi]} onPress={tapKey} />
+        <PianoKeyboard {...RANGE} marks={marks} active={activeMidi === null ? [] : [activeMidi]} onPress={tapKey} />
 
         <div className="actions">
           <button className="primary" onClick={climb}>
@@ -136,6 +138,31 @@ export function StaffLesson() {
             <p>{noteChip('C4')} โดกลาง มีเส้นน้อยขีดทับ อยู่ใต้บรรทัด</p>
             <p>{noteChip('G4')} อยู่บนเส้นที่ 2 ที่กุญแจซอลม้วนพันอยู่</p>
             <p>จำ 2 ตัวนี้ได้ แล้วค่อยนับขึ้นลงไปหาตัวอื่น</p>
+          </div>
+          <div className="lesson-card wide">
+            <h3>🪜 เส้นน้อย</h3>
+            <p>
+              โน้ตที่ต่ำหรือสูงเกินบรรทัด จะมี<b>เส้นสั้นๆ ขีดเพิ่ม</b>ให้ เรียกว่า “เส้นน้อย” นับต่อจากบรรทัดได้เลย
+              ขึ้นลงทีละขั้นเหมือนเดิม
+            </p>
+            <div className="staff-box">
+              <Staff
+                colored={colored}
+                spread={0.9}
+                onNoteClick={tapNote}
+                ariaLabel="ตัวอย่างโน้ตเส้นน้อย"
+                notes={LEDGER_DEMO.map((name) => {
+                  const n = staffNote(name)
+                  return { name, state: name === active ? 'active' : undefined, label: `${n.letter} ${fixedSolfege(n)}` }
+                })}
+              />
+            </div>
+            <p>
+              ใต้บรรทัด: {noteChip('C4')} อยู่บนเส้นน้อยแรก · {noteChip('B3')} ห้อยใต้เส้นน้อย · {noteChip('A3')} อยู่บนเส้นน้อยที่ 2
+            </p>
+            <p>
+              เหนือบรรทัด: {noteChip('G5')} นั่งบนเส้นที่ 5 · {noteChip('A5')} อยู่บนเส้นน้อยเหนือบรรทัด
+            </p>
           </div>
           <div className="lesson-card">
             <h3>🐔 คำช่วยจำ</h3>

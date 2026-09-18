@@ -1,3 +1,4 @@
+import { weightedPick } from '../lib/random'
 import { scaleNotes, type KeyDef, type LabelMode, type ScaleNote } from '../theory/keys'
 
 export interface QuizConfig {
@@ -37,16 +38,6 @@ export function degreeWeight(tally: Tally | undefined): number {
   const correct = tally?.correct ?? 0
   const total = tally?.total ?? 0
   return 0.5 + (3 * (total - correct + 1)) / (total + 2)
-}
-
-function weightedPick<T>(items: T[], weight: (item: T) => number, rng: () => number): T {
-  const weights = items.map(weight)
-  let r = rng() * weights.reduce((a, b) => a + b, 0)
-  for (let i = 0; i < items.length; i++) {
-    r -= weights[i]
-    if (r < 0) return items[i]
-  }
-  return items[items.length - 1]
 }
 
 /** สุ่มคำถาม โดยไม่ให้โน้ตเดียวกันออกติดกันสองข้อ (ถ้ามีตัวเลือกมากกว่าหนึ่ง) */

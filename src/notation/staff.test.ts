@@ -1,5 +1,14 @@
 import { describe, expect, it } from 'vitest'
-import { describePosition, fixedSolfege, isOnLine, ledgerLines, naturalRange, staffNote, stemUp } from './staff'
+import {
+  describePosition,
+  fixedSolfege,
+  isOnLine,
+  ledgerLines,
+  naturalRange,
+  shortPosition,
+  staffNote,
+  stemUp,
+} from './staff'
 
 describe('staffNote', () => {
   it('ตำแหน่งในกุญแจซอล: E4 เส้นล่างสุด, B4 เส้นกลาง, F5 เส้นบนสุด', () => {
@@ -72,5 +81,19 @@ describe('describePosition', () => {
     expect(describePosition(staffNote('B3').pos)).toBe('ห้อยอยู่ใต้เส้นน้อยที่ 1')
     expect(describePosition(staffNote('G5').pos)).toBe('นั่งอยู่บนเส้นที่ 5')
     expect(describePosition(staffNote('A5').pos)).toBe('มีเส้นน้อยขีดทับ (เส้นน้อยที่ 1 เหนือบรรทัด)')
+  })
+})
+
+describe('shortPosition', () => {
+  it('แยกโน้ตชื่อเดียวกันคนละออคเทฟได้', () => {
+    const labels = ['A3', 'A4', 'A5'].map((n) => shortPosition(staffNote(n).pos))
+    expect(labels).toEqual(['เส้นน้อยล่าง 2', 'ช่อง 2', 'เส้นน้อยบน 1'])
+    expect(new Set(naturalRange('A3', 'A5').map((n) => shortPosition(n.pos))).size).toBe(15)
+  })
+
+  it('ตำแหน่งขอบบรรทัด', () => {
+    expect(shortPosition(staffNote('D4').pos)).toBe('ใต้เส้น 1')
+    expect(shortPosition(staffNote('G5').pos)).toBe('บนเส้น 5')
+    expect(shortPosition(staffNote('B3').pos)).toBe('ใต้เส้นน้อยล่าง 1')
   })
 })

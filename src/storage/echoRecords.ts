@@ -1,4 +1,5 @@
 import type { KeyDef } from '../theory/keys'
+import { isObject, readJSON, writeJSON } from './local'
 import { keyId } from './progress'
 
 const STORAGE_KEY = 'ear-training:echo:v1'
@@ -10,14 +11,7 @@ export function echoRecordId(key: KeyDef, degrees: number[]): string {
   return `${keyId(key)}:${degrees.join('')}`
 }
 
-function load(): Records {
-  try {
-    const data = JSON.parse(localStorage.getItem(STORAGE_KEY) ?? '{}') as unknown
-    return data && typeof data === 'object' ? (data as Records) : {}
-  } catch {
-    return {}
-  }
-}
+const load = (): Records => readJSON(STORAGE_KEY, (d): d is Records => isObject(d), () => ({}))
 
 export function loadEchoBest(id: string): number {
   const value = load()[id]
@@ -27,10 +21,6 @@ export function loadEchoBest(id: string): number {
 /** บันทึกถ้าทำลายสถิติเดิม คืนค่า true ถ้าเป็นสถิติใหม่ */
 export function saveEchoBest(id: string, longest: number): boolean {
   if (longest <= loadEchoBest(id)) return false
-  try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify({ ...load(), [id]: longest }))
-  } catch {
-    // บันทึกไม่ได้ก็เล่นต่อได้
-  }
+  writeJSON(STORAGE_KEY, { ...load(), [id]: longest })
   return true
 }

@@ -1,18 +1,21 @@
 import { useState } from 'react'
 import { stopAll, type AudioStatus } from './audio/engine'
 import { useAudioStatus } from './audio/useAudio'
+import { TopNav, type NavItem } from './components/TopNav'
+import { StaffLesson } from './components/StaffLesson'
 import { ExplorerPage } from './pages/ExplorerPage'
 import { GamesPage } from './pages/GamesPage'
 import { StatsPage } from './pages/StatsPage'
 import { TipsPage } from './pages/TipsPage'
 import type { KeyDef, LabelMode } from './theory/keys'
 
-type Tab = 'explore' | 'quiz' | 'stats' | 'tips'
+type Tab = 'explore' | 'reading' | 'quiz' | 'stats' | 'tips'
 
-const TABS: { value: Tab; icon: string; label: string }[] = [
+const TABS: NavItem<Tab>[] = [
   { value: 'explore', icon: '🎹', label: 'รู้จักโน้ต' },
+  { value: 'reading', icon: '🎼', label: 'อ่านโน้ต' },
   { value: 'quiz', icon: '🎮', label: 'เกม' },
-  { value: 'stats', icon: '⭐', label: 'ผลงานของฉัน' },
+  { value: 'stats', icon: '⭐', label: 'ผลงาน' },
   { value: 'tips', icon: '💡', label: 'เคล็ดลับ' },
 ]
 
@@ -38,32 +41,15 @@ export default function App() {
 
   return (
     <div className="app">
-      <header className="app-header">
-        <div className="brand">
-          <span className="logo" aria-hidden>
-            🦉
-          </span>
-          <div>
-            <h1>
-              หูทองน้อย <span className="notes" aria-hidden>♪♫</span>
-            </h1>
-            <p className={`status ${status}`}>{STATUS_TEXT[status]}</p>
-          </div>
-        </div>
-        <nav className="tabs">
-          {TABS.map((t) => (
-            <button key={t.value} className={tab === t.value ? 'selected' : ''} onClick={() => switchTab(t.value)}>
-              <span className="tab-icon" aria-hidden>
-                {t.icon}
-              </span>
-              {t.label}
-            </button>
-          ))}
-        </nav>
-      </header>
+      <TopNav items={TABS} current={tab} onSelect={switchTab} status={STATUS_TEXT[status]} statusClass={status} />
 
       <main>
         {tab === 'explore' && <ExplorerPage {...shared} />}
+        {tab === 'reading' && (
+          <section className="page">
+            <StaffLesson />
+          </section>
+        )}
         {tab === 'quiz' && <GamesPage {...shared} />}
         {tab === 'stats' && <StatsPage />}
         {tab === 'tips' && <TipsPage />}

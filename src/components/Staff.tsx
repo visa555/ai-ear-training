@@ -20,6 +20,10 @@ export interface StaffItem {
   state?: StaffNoteState
   /** ข้อความใต้บรรทัด เช่น ชื่อโน้ต */
   label?: string
+  /** class เพิ่มเติมของโน้ต เช่น ระดับสีในหน้าสถิติ */
+  className?: string
+  /** คำอธิบายเมื่อชี้ (tooltip) */
+  title?: string
 }
 
 interface Props {
@@ -62,7 +66,7 @@ export function Staff({ notes, colored = true, onNoteClick, spread = 1, ariaLabe
         const cy = yOf(note.pos)
         const up = stemUp(note.pos)
         const stemX = up ? cx + HEAD_RX - 1 : cx - HEAD_RX + 1
-        const classes = ['staff-note', colored && `deg-${note.letterIndex + 1} colored`, item.state]
+        const classes = ['staff-note', colored && `deg-${note.letterIndex + 1} colored`, item.state, item.className]
         return (
           <g
             key={`${item.name}-${i}`}
@@ -71,6 +75,7 @@ export function Staff({ notes, colored = true, onNoteClick, spread = 1, ariaLabe
             role={onNoteClick ? 'button' : undefined}
             aria-label={onNoteClick ? item.label ?? item.name : undefined}
           >
+            {item.title && <title>{item.title}</title>}
             {/* พื้นที่แตะให้ใหญ่กว่าหัวโน้ต */}
             <rect className="hit" x={cx - gap / 2} y={0} width={gap} height={height} />
             {item.state && <circle className="halo" cx={cx} cy={cy} r={SP * 1.25} />}

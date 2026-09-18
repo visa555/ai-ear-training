@@ -93,7 +93,7 @@ export const PARENT_TIPS: { icon: string; title: string; body: string }[] = [
   },
   {
     icon: '🗺️',
-    title: 'ใช้หน้า “ผลงานของฉัน”',
+    title: 'ใช้หน้า “ผลงาน”',
     body: 'ช่องสีอ่อนในตารางคือโน้ตที่เด็กยังทายพลาดบ่อย ใช้ดูว่าควรฝึกตัวไหนเพิ่ม',
   },
   {

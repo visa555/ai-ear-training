@@ -42,8 +42,11 @@
   --seq-2: #6da7ec;
   --seq-3: #2a78d6;
   --seq-4: #184f95;
-  --seq-ink-light: #10233d;
-  --seq-ink-dark: #ffffff;
+  --seq-ink-0: #10233d;
+  --seq-ink-1: #10233d;
+  --seq-ink-2: #10233d;
+  --seq-ink-3: #ffffff;
+  --seq-ink-4: #ffffff;
 
   color-scheme: light;
 }
@@ -71,6 +74,17 @@
     --key-white: #f6f1e7;
     --key-black: #120f24;
     --key-stroke: #5a5185;
+    /* โหมดมืด: ค่าน้อยกลืนไปกับพื้นมืด ค่ามากสว่างขึ้น */
+    --seq-0: #184f95;
+    --seq-1: #2a78d6;
+    --seq-2: #6da7ec;
+    --seq-3: #9ec5f4;
+    --seq-4: #cde2fb;
+    --seq-ink-0: #ffffff;
+    --seq-ink-1: #ffffff;
+    --seq-ink-2: #10233d;
+    --seq-ink-3: #10233d;
+    --seq-ink-4: #10233d;
     color-scheme: dark;
   }
 }
@@ -199,7 +213,7 @@ button.danger {
 /* ========== layout ========== */
 
 .app {
-  max-width: 920px;
+  max-width: 980px;
   margin: 0 auto;
   padding: 16px;
   min-height: 100vh;
@@ -208,18 +222,31 @@ button.danger {
 }
 
 .app-header {
+  position: relative;
   display: flex;
   justify-content: space-between;
   align-items: center;
   gap: 12px;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   margin-bottom: 18px;
 }
 
 .brand {
   display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.brand-core {
+  display: flex;
   align-items: center;
   gap: 10px;
+  width: max-content;
+}
+
+.brand-core h1 {
+  white-space: nowrap;
 }
 
 .logo {
@@ -242,6 +269,9 @@ button.danger {
   margin: 0;
   font-size: 0.85rem;
   color: var(--muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .status.piano {
@@ -255,7 +285,8 @@ button.danger {
 .tabs {
   display: flex;
   gap: 6px;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
+  flex-shrink: 0;
 }
 
 .tabs button {
@@ -263,6 +294,110 @@ button.danger {
   align-items: center;
   gap: 6px;
   padding: 8px 14px;
+  white-space: nowrap;
+}
+
+/* สำเนาเมนูที่ซ่อนไว้ใช้วัดความกว้าง: กล่องนอกตัดขอบไว้ ไม่ให้ดันหน้าให้กว้างเกินจอ */
+.measure-clip {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.tabs-measure {
+  width: max-content;
+}
+
+/* ========== hamburger menu ========== */
+
+.menu-wrap {
+  flex-shrink: 0;
+}
+
+.menu-toggle {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 14px;
+  white-space: nowrap;
+}
+
+.menu-toggle.open {
+  background: var(--accent-soft);
+  border-color: var(--accent);
+}
+
+.hamburger {
+  position: relative;
+  display: inline-block;
+  width: 22px;
+  height: 16px;
+}
+
+.hamburger i {
+  position: absolute;
+  left: 0;
+  width: 100%;
+  height: 3px;
+  border-radius: 3px;
+  background: currentColor;
+  transition: transform 0.2s, opacity 0.2s, top 0.2s;
+}
+
+.hamburger i:nth-child(1) { top: 0; }
+.hamburger i:nth-child(2) { top: 6.5px; }
+.hamburger i:nth-child(3) { top: 13px; }
+
+.menu-toggle.open .hamburger i:nth-child(1) {
+  top: 6.5px;
+  transform: rotate(45deg);
+}
+
+.menu-toggle.open .hamburger i:nth-child(2) {
+  opacity: 0;
+}
+
+.menu-toggle.open .hamburger i:nth-child(3) {
+  top: 6.5px;
+  transform: rotate(-45deg);
+}
+
+.menu-panel {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  z-index: 30;
+  width: min(300px, 100%);
+  display: grid;
+  gap: 8px;
+  padding: 12px;
+  background: var(--surface);
+  border: 2px solid var(--border-strong);
+  border-radius: 22px;
+  box-shadow: 0 12px 36px rgb(43 35 80 / 0.18);
+  animation: menu-in 0.15s ease-out;
+}
+
+.menu-panel button {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 16px;
+  font-size: 1.05rem;
+  text-align: left;
+}
+
+.menu-panel button.selected {
+  background: var(--accent);
+  border-color: var(--accent-press);
+  color: var(--accent-text);
+}
+
+@keyframes menu-in {
+  from { opacity: 0; transform: translateY(-6px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 .tabs button.selected {
@@ -1025,11 +1160,11 @@ legend {
   font-weight: 400;
 }
 
-.bin-0 { background: var(--seq-0); color: var(--seq-ink-light); }
-.bin-1 { background: var(--seq-1); color: var(--seq-ink-light); }
-.bin-2 { background: var(--seq-2); color: var(--seq-ink-light); }
-.bin-3 { background: var(--seq-3); color: var(--seq-ink-dark); }
-.bin-4 { background: var(--seq-4); color: var(--seq-ink-dark); }
+.bin-0 { background: var(--seq-0); color: var(--seq-ink-0); }
+.bin-1 { background: var(--seq-1); color: var(--seq-ink-1); }
+.bin-2 { background: var(--seq-2); color: var(--seq-ink-2); }
+.bin-3 { background: var(--seq-3); color: var(--seq-ink-3); }
+.bin-4 { background: var(--seq-4); color: var(--seq-ink-4); }
 
 .legend {
   display: flex;
@@ -1150,19 +1285,6 @@ legend {
 
   .logo {
     font-size: 2.3rem;
-  }
-
-  .tabs {
-    width: 100%;
-  }
-
-  .tabs button {
-    flex: 1;
-    justify-content: center;
-    flex-direction: column;
-    gap: 0;
-    padding: 6px 4px;
-    font-size: 0.82rem;
   }
 
   .mascot-face {
@@ -1355,9 +1477,16 @@ legend {
   .tip-icon {
     font-size: 1.6rem;
   }
+}
 
-  .tabs button {
-    font-size: 0.75rem;
+@media (max-width: 420px) {
+  /* จอแคบมาก: ปุ่มเมนูเหลือแค่ไอคอนแฮมเบอร์เกอร์กับไอคอนหน้าปัจจุบัน */
+  .menu-current {
+    font-size: 0;
+  }
+
+  .menu-current span {
+    font-size: 1.1rem;
   }
 }
 
@@ -1579,10 +1708,6 @@ legend {
 
 /* ========== reading ========== */
 
-.view-toggle {
-  display: flex;
-  justify-content: center;
-}
 
 .lesson-cards {
   display: grid;
@@ -1666,4 +1791,62 @@ legend {
 
 .letter-pad button.dim {
   opacity: 0.35;
+}
+
+/* ด่านอ่านโน้ตมี 4 ด่าน */
+.levels.four {
+  grid-template-columns: repeat(4, 1fr);
+}
+
+@media (max-width: 560px) {
+  .levels.four {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+.lesson-card.wide {
+  grid-column: 1 / -1;
+}
+
+.lesson-card .staff-box {
+  margin: 8px 0;
+  max-width: 420px;
+}
+
+.lesson-card .chip {
+  margin: 2px 0;
+}
+
+/* หัวโน้ตในหน้าสถิติ: ระบายตามระดับความแม่นยำ */
+.staff-note.bin-0 .head { fill: var(--seq-0); }
+.staff-note.bin-1 .head { fill: var(--seq-1); }
+.staff-note.bin-2 .head { fill: var(--seq-2); }
+.staff-note.bin-3 .head { fill: var(--seq-3); }
+.staff-note.bin-4 .head { fill: var(--seq-4); }
+
+.staff-note[class*='bin-'] .head {
+  stroke: var(--text);
+  stroke-width: 1.2;
+}
+
+.staff-scroll {
+  overflow-x: auto;
+}
+
+.staff-scroll .staff {
+  min-width: var(--staff-min, 0);
+}
+
+.section-title {
+  margin: 10px 0 -4px;
+  font-size: 1.4rem;
+}
+
+.focus-line {
+  margin: 14px 0 0;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  font-weight: 600;
 }

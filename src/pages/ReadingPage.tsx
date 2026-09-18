@@ -3,13 +3,14 @@ import { ensureAudio } from '../audio/engine'
 import { Mascot } from '../components/Mascot'
 import { ReadingPlay, type ReadingAnswer, type ReadingConfig } from '../components/ReadingPlay'
 import { Staff } from '../components/Staff'
-import { fixedSolfege, LETTERS, staffNote } from '../notation/staff'
-import { starsFor } from '../quiz/generator'
+import { fixedSolfege, LETTERS, staffNote, type StaffNote } from '../notation/staff'
+import { degreeWeight, starsFor } from '../quiz/generator'
 import { READING_LEVELS } from '../reading/logic'
+import { loadReadingProgress, recordReadingSession } from '../storage/readingProgress'
 
 type Stage =
   | { name: 'setup' }
-  | { name: 'play'; config: ReadingConfig; round: number }
+  | { name: 'play'; config: ReadingConfig; round: number; weight?: (note: StaffNote) => number }
   | { name: 'done'; config: ReadingConfig; answers: ReadingAnswer[] }
 
 const COUNT = 10
@@ -17,16 +18,23 @@ const COUNT = 10
 export function ReadingPage() {
   const [levelIndex, setLevelIndex] = useState(0)
   const [colored, setColored] = useState(true)
+  const [adaptive, setAdaptive] = useState(true)
   const [loading, setLoading] = useState(false)
   const [stage, setStage] = useState<Stage>({ name: 'setup' })
 
-  const begin = (config: ReadingConfig) => setStage({ name: 'play', config, round: Date.now() })
+  /** ใช้สถิติสะสม: โน้ตที่อ่านพลาดบ่อยได้น้ำหนักมาก (สูตรเดียวกับเกมทายโน้ต) */
+  const begin = (config: ReadingConfig) => {
+    const byNote = config.adaptive ? loadReadingProgress().byNote : null
+    const weight = byNote ? (note: StaffNote) => degreeWeight(byNote[note.name]) : undefined
+    setStage({ name: 'play', config, round: Date.now(), weight })
+  }
 
   const start = async () => {
     setLoading(true)
     await ensureAudio()
     setLoading(false)
-    begin({ notes: READING_LEVELS[levelIndex].notes, colored, count: COUNT })
+    const level = READING_LEVELS[levelIndex]
+    begin({ notes: level.notes, level: level.name, colored, adaptive, count: COUNT })
   }
 
   if (stage.name === 'play') {
@@ -34,8 +42,15 @@ export function ReadingPage() {
       <ReadingPlay
         key={stage.round}
         config={stage.config}
+        weight={stage.weight}
         onQuit={() => setStage({ name: 'setup' })}
-        onDone={(answers) => setStage({ name: 'done', config: stage.config, answers })}
+        onDone={(answers) => {
+          recordReadingSession(
+            stage.config.level,
+            answers.map((a) => ({ note: a.question.name, correct: a.correct })),
+          )
+          setStage({ name: 'done', config: stage.config, answers })
+        }}
       />
     )
   }
@@ -68,7 +83,7 @@ export function ReadingPage() {
               : 'สุดยอด! อ่านโน้ตสีดำได้แล้ว ลองด่านที่ยากขึ้นดูนะ 🦅'
             : stars === 2
               ? 'เก่งมาก! อีกนิดเดียวก็ได้ 3 ดาวแล้ว ✨'
-              : 'เก่งที่เล่นจนจบ! ลองไปดูบทเรียนบรรทัด 5 เส้นในหน้า “รู้จักโน้ต” แล้วกลับมาเล่นใหม่นะ 💪'}
+              : 'เก่งที่เล่นจนจบ! ลองไปดูบทเรียนในเมนู “อ่านโน้ต” แล้วกลับมาเล่นใหม่นะ 💪'}
         </Mascot>
 
         <h3>โน้ตแต่ละตัวเป็นยังไงบ้าง</h3>
@@ -117,7 +132,7 @@ export function ReadingPage() {
 
       <div className="card">
         <h2>1️⃣ เลือกด่าน</h2>
-        <div className="levels">
+        <div className="levels four">
           {READING_LEVELS.map((l, i) => (
             <button key={l.name} className={`level${i === levelIndex ? ' selected' : ''}`} onClick={() => setLevelIndex(i)}>
               <span className="level-icon">{l.icon}</span>
@@ -134,7 +149,7 @@ export function ReadingPage() {
         <div className="staff-box">
           <Staff
             colored={colored}
-            spread={0.8}
+            spread={level.notes.length > 10 ? 0.65 : 0.8}
             ariaLabel={`โน้ตในด่าน ${level.name}`}
             notes={level.notes.map((n) => ({ name: n, label: staffNote(n).letter }))}
           />
@@ -148,6 +163,15 @@ export function ReadingPage() {
             🎨 <b>หัวโน้ตสี</b> (ล้อช่วย) · ปิดเมื่อพร้อมอ่านโน้ตสีดำแบบของจริง
           </span>
         </label>
+        <label className="switch">
+          <input type="checkbox" checked={adaptive} onChange={(e) => setAdaptive(e.target.checked)} />
+          <span>
+            🎯 <b>เน้นโน้ตที่อ่านพลาดบ่อย</b> · ใช้ผลที่บันทึกไว้ ให้ตัวที่ยังไม่แม่นออกบ่อยขึ้น
+          </span>
+        </label>
+        {levelIndex === 3 && (
+          <p className="hint">🚀 ด่านนี้มีโน้ตเส้นน้อย ลองดูบทเรียน “เส้นน้อย” ในเมนูอ่านโน้ตก่อนเล่นนะ</p>
+        )}
       </div>
 
       <div className="start-row">

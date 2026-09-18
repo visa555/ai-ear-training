@@ -79,6 +79,15 @@ export function describePosition(pos: StaffPos): string {
     : `นั่งอยู่บนเส้นน้อยที่ ${(pos - 9) / 2}`
 }
 
+/** ตำแหน่งแบบสั้น ใช้แยกโน้ตชื่อซ้ำกันคนละออคเทฟ เช่น A3 = "เส้นน้อยล่าง 2", A4 = "ช่อง 2" */
+export function shortPosition(pos: StaffPos): string {
+  if (pos >= 0 && pos <= 8) return isOnLine(pos) ? `เส้น ${pos / 2 + 1}` : `ช่อง ${(pos + 1) / 2}`
+  if (pos === -1) return 'ใต้เส้น 1'
+  if (pos === 9) return 'บนเส้น 5'
+  if (pos < 0) return isOnLine(pos) ? `เส้นน้อยล่าง ${-pos / 2}` : `ใต้เส้นน้อยล่าง ${(-pos - 1) / 2}`
+  return isOnLine(pos) ? `เส้นน้อยบน ${(pos - 8) / 2}` : `บนเส้นน้อยบน ${(pos - 9) / 2}`
+}
+
 export function fixedSolfege(note: Pick<StaffNote, 'letterIndex'>): string {
   return FIXED_SOLFEGE[note.letterIndex]
 }

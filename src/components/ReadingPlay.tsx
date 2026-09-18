@@ -1,8 +1,7 @@
 import { useEffect, useState } from 'react'
 import { playNotes, stopAll } from '../audio/engine'
 import { describePosition, fixedSolfege, LETTERS, type StaffNote } from '../notation/staff'
-import { answerLetters, generateReadingQuestions, isCorrectLetter } from '../reading/logic'
-import { keyboardRange } from '../theory/keys'
+import { answerLetters, generateReadingQuestions, isCorrectLetter, readingKeyboardRange } from '../reading/logic'
 import { Confetti } from './Confetti'
 import { Mascot, type MascotMood } from './Mascot'
 import { PianoKeyboard, type KeyMark } from './PianoKeyboard'
@@ -10,7 +9,10 @@ import { Staff } from './Staff'
 
 export interface ReadingConfig {
   notes: string[]
+  /** ชื่อด่าน ใช้บันทึกสถิติ */
+  level: string
   colored: boolean
+  adaptive: boolean
   count: number
 }
 
@@ -22,6 +24,8 @@ export interface ReadingAnswer {
 
 interface Props {
   config: ReadingConfig
+  /** น้ำหนักการสุ่มของแต่ละโน้ต (ตัวที่อ่านพลาดบ่อยได้น้ำหนักมาก) */
+  weight?: (note: StaffNote) => number
   onDone: (answers: ReadingAnswer[]) => void
   onQuit: () => void
 }
@@ -37,8 +41,8 @@ function chip(n: StaffNote) {
   )
 }
 
-export function ReadingPlay({ config, onDone, onQuit }: Props) {
-  const [questions] = useState(() => generateReadingQuestions(config.notes, config.count))
+export function ReadingPlay({ config, weight, onDone, onQuit }: Props) {
+  const [questions] = useState(() => generateReadingQuestions(config.notes, config.count, Math.random, weight))
   const [index, setIndex] = useState(0)
   const [answers, setAnswers] = useState<ReadingAnswer[]>([])
   /** คีย์เปียโนที่เด็กกด (ถ้าตอบผ่านเปียโน) */
@@ -48,7 +52,7 @@ export function ReadingPlay({ config, onDone, onQuit }: Props) {
   const last = answers[index]
   const answered = last !== undefined
   const score = answers.filter((a) => a.correct).length
-  const range = keyboardRange(60, 72)
+  const range = readingKeyboardRange(config.notes)
 
   useEffect(() => stopAll, [])
 
@@ -91,7 +95,8 @@ export function ReadingPlay({ config, onDone, onQuit }: Props) {
   })
 
   // เปียโนไม่มีสีและไม่มีชื่อ (มีแค่ C เป็นจุดสังเกต) เพื่อให้เด็กอ่านจากบรรทัดจริงๆ
-  const marks: Record<number, KeyMark> = { 60: { tone: 'scale', label: 'C' }, 72: { tone: 'scale', label: 'C' } }
+  const marks: Record<number, KeyMark> = {}
+  for (let midi = range.from; midi <= range.to; midi++) if (midi % 12 === 0) marks[midi] = { tone: 'scale', label: 'C' }
   if (answered) {
     marks[question.midi] = { ...marks[question.midi], tone: 'correct' }
     if (!last.correct && pressedMidi !== null) marks[pressedMidi] = { ...marks[pressedMidi], tone: 'wrong' }

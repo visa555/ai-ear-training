@@ -1,5 +1,6 @@
 import { statsByDegree, type Answer, type Tally } from '../quiz/generator'
 import type { KeyDef } from '../theory/keys'
+import { isObject, readJSON, removeKey, writeJSON } from './local'
 
 const STORAGE_KEY = 'ear-training:progress:v1'
 const MAX_SESSIONS = 100
@@ -20,6 +21,8 @@ export interface Progress {
 }
 
 const empty = (): Progress => ({ byKey: {}, sessions: [] })
+const isProgress = (data: unknown): data is Progress =>
+  isObject(data) && isObject(data.byKey) && Array.isArray(data.sessions)
 
 export function keyId(key: KeyDef): string {
   return `${key.mode}:${key.tonic}`
@@ -30,25 +33,8 @@ export function parseKeyId(id: string): KeyDef {
   return { mode: mode as KeyDef['mode'], tonic }
 }
 
-/** localStorage อาจใช้ไม่ได้ (private mode, ถูกบล็อก) จึงต้องไม่ทำให้แอปพัง */
 export function loadProgress(): Progress {
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY)
-    if (!raw) return empty()
-    const data = JSON.parse(raw) as Partial<Progress>
-    if (typeof data.byKey !== 'object' || !Array.isArray(data.sessions)) return empty()
-    return { byKey: data.byKey ?? {}, sessions: data.sessions }
-  } catch {
-    return empty()
-  }
-}
-
-function save(progress: Progress) {
-  try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(progress))
-  } catch {
-    // ไม่มีที่เก็บก็ใช้งานต่อได้ เพียงแต่ไม่มีสถิติสะสม
-  }
+  return readJSON(STORAGE_KEY, isProgress, empty)
 }
 
 export function recordSession(key: KeyDef, answers: Answer[], now = new Date()): Progress {
@@ -66,14 +52,10 @@ export function recordSession(key: KeyDef, answers: Answer[], now = new Date()):
       ...progress.sessions,
     ].slice(0, MAX_SESSIONS),
   }
-  save(next)
+  writeJSON(STORAGE_KEY, next)
   return next
 }
 
 export function clearProgress() {
-  try {
-    localStorage.removeItem(STORAGE_KEY)
-  } catch {
-    // ignore
-  }
+  removeKey(STORAGE_KEY)
 }
