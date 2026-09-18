@@ -1,7 +1,15 @@
 import { describe, expect, it } from 'vitest'
 import { cadenceChords } from '../audio/cadence'
 import { scaleNotes, type KeyDef } from '../theory/keys'
-import { buildPool, degreeWeight, generateQuestions, resolutionPath, statsByDegree } from './generator'
+import {
+  buildPool,
+  currentStreak,
+  degreeWeight,
+  generateQuestions,
+  resolutionPath,
+  starsFor,
+  statsByDegree,
+} from './generator'
 
 const C: KeyDef = { tonic: 'C', mode: 'major' }
 const G: KeyDef = { tonic: 'G', mode: 'major' }
@@ -32,7 +40,7 @@ describe('generateQuestions', () => {
     for (const q of qs) expect(pool).toContain(q)
   })
 
-  it('ไม่ออกโน๊ตเดิมติดกัน', () => {
+  it('ไม่ออกโน้ตเดิมติดกัน', () => {
     const qs = generateQuestions(buildPool(C, [1, 5], 1), 100, seeded(7))
     for (let i = 1; i < qs.length; i++) expect(qs[i].midi).not.toBe(qs[i - 1].midi)
   })
@@ -76,7 +84,7 @@ describe('resolutionPath', () => {
     expect(resolutionPath(C, ti).map((n) => n.name)).toEqual(['B4', 'C5'])
   })
 
-  it('ใช้โน๊ตของคีย์ไมเนอร์', () => {
+  it('ใช้โน้ตของคีย์ไมเนอร์', () => {
     const Am: KeyDef = { tonic: 'A', mode: 'harmonic' }
     const sixth = scaleNotes(Am)[5]
     expect(resolutionPath(Am, sixth).map((n) => n.name)).toEqual(['F4', 'G#4', 'A4'])
@@ -115,5 +123,23 @@ describe('cadenceChords', () => {
       [55, 59, 62, 67],
       [48, 60, 63, 67],
     ])
+  })
+})
+
+describe('currentStreak / starsFor', () => {
+  const [c] = scaleNotes(C)
+  const a = (correct: boolean) => ({ question: c, chosen: 1, correct })
+
+  it('นับเฉพาะข้อที่ถูกติดกันตอนท้าย', () => {
+    expect(currentStreak([])).toBe(0)
+    expect(currentStreak([a(true), a(false), a(true), a(true)])).toBe(2)
+    expect(currentStreak([a(true), a(false)])).toBe(0)
+  })
+
+  it('ได้อย่างน้อย 1 ดาวเสมอ', () => {
+    expect(starsFor(0)).toBe(1)
+    expect(starsFor(59)).toBe(1)
+    expect(starsFor(60)).toBe(2)
+    expect(starsFor(90)).toBe(3)
   })
 })

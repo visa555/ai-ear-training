@@ -23,7 +23,7 @@ export interface Tally {
   total: number
 }
 
-/** โน๊ตทั้งหมดที่สุ่มได้ โหมด 2 ออคเทฟจะเพิ่มออคเทฟที่ต่ำลงมา */
+/** โน้ตทั้งหมดที่สุ่มได้ โหมด 2 ออคเทฟจะเพิ่มออคเทฟที่ต่ำลงมา */
 export function buildPool(key: KeyDef, degrees: number[], octaves: 1 | 2): ScaleNote[] {
   const shifts = octaves === 2 ? [-1, 0] : [0]
   return shifts.flatMap((s) => scaleNotes(key, s)).filter((n) => degrees.includes(n.degree))
@@ -49,7 +49,7 @@ function weightedPick<T>(items: T[], weight: (item: T) => number, rng: () => num
   return items[items.length - 1]
 }
 
-/** สุ่มคำถาม โดยไม่ให้โน๊ตเดียวกันออกติดกันสองข้อ (ถ้ามีตัวเลือกมากกว่าหนึ่ง) */
+/** สุ่มคำถาม โดยไม่ให้โน้ตเดียวกันออกติดกันสองข้อ (ถ้ามีตัวเลือกมากกว่าหนึ่ง) */
 export function generateQuestions(
   pool: ScaleNote[],
   count: number,
@@ -67,7 +67,7 @@ export function generateQuestions(
 }
 
 /**
- * ไล่โน๊ตจากคำตอบกลับไปหาโทนิกที่ใกล้ที่สุด:
+ * ไล่โน้ตจากคำตอบกลับไปหาโทนิกที่ใกล้ที่สุด:
  * ขั้น 1–4 ไล่ลงไปหาโทนิกตัวล่าง ขั้น 5–7 ไล่ขึ้นไปหาโทนิกตัวบน
  */
 export function resolutionPath(key: KeyDef, note: ScaleNote): ScaleNote[] {
@@ -93,4 +93,18 @@ export function statsByDegree(answers: Answer[]): DegreeStat[] {
     map.set(d, stat)
   }
   return [...map.values()].sort((a, b) => a.degree - b.degree)
+}
+
+/** จำนวนข้อที่ตอบถูกติดกันล่าสุด */
+export function currentStreak(answers: Answer[]): number {
+  let n = 0
+  for (let i = answers.length - 1; i >= 0 && answers[i].correct; i--) n++
+  return n
+}
+
+/** ดาวเมื่อจบเกม: เล่นจบได้อย่างน้อย 1 ดาวเสมอเพื่อให้กำลังใจ */
+export function starsFor(pct: number): 1 | 2 | 3 {
+  if (pct >= 90) return 3
+  if (pct >= 60) return 2
+  return 1
 }

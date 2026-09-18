@@ -3,7 +3,7 @@ import { ensureAudio } from '../audio/engine'
 import { QuizRunner } from '../components/QuizRunner'
 import { QuizSetup } from '../components/QuizSetup'
 import { QuizSummary } from '../components/QuizSummary'
-import { degreeWeight, type QuizConfig } from '../quiz/generator'
+import { currentStreak, degreeWeight, type QuizConfig } from '../quiz/generator'
 import { useQuiz } from '../quiz/useQuiz'
 import { keyId, loadProgress, recordSession } from '../storage/progress'
 import type { KeyDef, LabelMode } from '../theory/keys'
@@ -54,6 +54,7 @@ export function QuizPage(props: Props) {
           index={session.index}
           total={session.questions.length}
           score={session.answers.filter((a) => a.correct).length}
+          streak={currentStreak(session.answers)}
           lastAnswer={quiz.lastAnswer}
           onAnswer={quiz.answer}
           onNext={quiz.next}

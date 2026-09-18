@@ -22,14 +22,14 @@ const steps = (key: KeyDef) => {
 }
 
 describe('scaleNotes (major)', () => {
-  it('C major คือโน๊ตขาวล้วน เริ่มที่ C4', () => {
+  it('C major คือโน้ตขาวล้วน เริ่มที่ C4', () => {
     const notes = scaleNotes(major('C'))
     expect(notes.map((n) => n.name)).toEqual(['C4', 'D4', 'E4', 'F4', 'G4', 'A4', 'B4'])
     expect(notes.map((n) => n.midi)).toEqual([60, 62, 64, 65, 67, 69, 71])
     expect(notes.map((n) => n.solfege)).toEqual(['Do', 'Re', 'Mi', 'Fa', 'Sol', 'La', 'Ti'])
   })
 
-  it('สะกดชื่อโน๊ตถูกต้องตามคีย์ (F# มี E# ไม่ใช่ F)', () => {
+  it('สะกดชื่อโน้ตถูกต้องตามคีย์ (F# มี E# ไม่ใช่ F)', () => {
     expect(scaleNotes(major('F#')).map((n) => n.pc)).toEqual(['F#', 'G#', 'A#', 'B', 'C#', 'D#', 'E#'])
     expect(scaleNotes(major('Db')).map((n) => n.pc)).toEqual(['Db', 'Eb', 'F', 'Gb', 'Ab', 'Bb', 'C'])
   })

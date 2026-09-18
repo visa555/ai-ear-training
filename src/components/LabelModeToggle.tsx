@@ -1,9 +1,9 @@
 import type { LabelMode } from '../theory/keys'
 
 const OPTIONS: { value: LabelMode; label: string }[] = [
-  { value: 'degree', label: 'ขั้น (1–7)' },
-  { value: 'solfege', label: 'Do Re Mi' },
-  { value: 'note', label: 'ชื่อโน๊ต' },
+  { value: 'solfege', label: 'โด เร มี' },
+  { value: 'degree', label: 'ตัวเลข 1–7' },
+  { value: 'note', label: 'ตัวอักษร C D E' },
 ]
 
 interface Props {

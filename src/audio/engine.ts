@@ -8,7 +8,7 @@ export type AudioStatus = 'idle' | 'loading' | 'piano' | 'synth'
 
 export interface Step {
   midis: number[]
-  /** ระยะเวลาที่โน๊ตดัง (วินาที) */
+  /** ระยะเวลาที่โน้ตดัง (วินาที) */
   duration: number
   /** เวลาก่อนเริ่ม step ถัดไป (วินาที) ค่าเริ่มต้นเท่ากับ duration */
   next?: number

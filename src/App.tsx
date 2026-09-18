@@ -8,23 +8,23 @@ import type { KeyDef, LabelMode } from './theory/keys'
 
 type Tab = 'explore' | 'quiz' | 'stats'
 
-const TABS: { value: Tab; label: string }[] = [
-  { value: 'explore', label: 'เรียนรู้คีย์' },
-  { value: 'quiz', label: 'แบบทดสอบ' },
-  { value: 'stats', label: 'สถิติ' },
+const TABS: { value: Tab; icon: string; label: string }[] = [
+  { value: 'explore', icon: '🎹', label: 'รู้จักโน้ต' },
+  { value: 'quiz', icon: '🎯', label: 'เกมทายโน้ต' },
+  { value: 'stats', icon: '⭐', label: 'ผลงานของฉัน' },
 ]
 
 const STATUS_TEXT: Record<AudioStatus, string> = {
-  idle: 'เสียงจะเริ่มเมื่อกดเล่นครั้งแรก',
-  loading: 'กำลังโหลดเสียงเปียโน…',
-  piano: '🎹 เสียงเปียโนพร้อม',
-  synth: '⚠︎ โหลดเสียงเปียโนไม่สำเร็จ กำลังใช้เสียงสังเคราะห์แทน',
+  idle: 'กดปุ่มเล่นเสียงได้เลย 🎶',
+  loading: 'กำลังเตรียมเปียโน… รอแป๊บนึงนะ',
+  piano: '🎹 เปียโนพร้อมแล้ว!',
+  synth: '🔈 ใช้เสียงเปียโนจำลองแทน (โหลดเปียโนจริงไม่สำเร็จ)',
 }
 
 export default function App() {
   const [tab, setTab] = useState<Tab>('explore')
   const [keyDef, setKeyDef] = useState<KeyDef>({ tonic: 'C', mode: 'major' })
-  const [labelMode, setLabelMode] = useState<LabelMode>('degree')
+  const [labelMode, setLabelMode] = useState<LabelMode>('solfege')
   const status = useAudioStatus()
 
   const shared = { keyDef, onKeyChange: setKeyDef, labelMode, onLabelModeChange: setLabelMode }
@@ -39,16 +39,21 @@ export default function App() {
       <header className="app-header">
         <div className="brand">
           <span className="logo" aria-hidden>
-            𝄞
+            🦉
           </span>
           <div>
-            <h1>Ear Training</h1>
+            <h1>
+              หูทองน้อย <span className="notes" aria-hidden>♪♫</span>
+            </h1>
             <p className={`status ${status}`}>{STATUS_TEXT[status]}</p>
           </div>
         </div>
         <nav className="tabs">
           {TABS.map((t) => (
             <button key={t.value} className={tab === t.value ? 'selected' : ''} onClick={() => switchTab(t.value)}>
+              <span className="tab-icon" aria-hidden>
+                {t.icon}
+              </span>
               {t.label}
             </button>
           ))}
@@ -62,7 +67,7 @@ export default function App() {
       </main>
 
       <footer className="app-footer">
-        ใช้บน iPhone แล้วไม่มีเสียง? ลองปิดโหมดเงียบ (สวิตช์ข้างเครื่อง) · เสียงเปียโน: Salamander Grand Piano
+        ไม่มีเสียง? ลองเปิดเสียงเครื่อง หรือปิดโหมดเงียบของ iPhone (สวิตช์ข้างเครื่อง) · เสียงเปียโน: Salamander Grand Piano
       </footer>
     </div>
   )

@@ -9,10 +9,10 @@ export interface KeyDef {
 }
 
 export const MODES: { value: Mode; label: string }[] = [
-  { value: 'major', label: 'เมเจอร์' },
-  { value: 'minor', label: 'ไมเนอร์ (natural)' },
-  { value: 'harmonic', label: 'ฮาร์โมนิกไมเนอร์' },
-  { value: 'melodic', label: 'เมโลดิกไมเนอร์' },
+  { value: 'major', label: '☀️ เมเจอร์ (สดใส)' },
+  { value: 'minor', label: '🌙 ไมเนอร์ (เศร้าๆ)' },
+  { value: 'harmonic', label: '🌙 ฮาร์โมนิกไมเนอร์' },
+  { value: 'melodic', label: '🌙 เมโลดิกไมเนอร์' },
 ]
 
 /** เรียงตาม circle of fifths และใช้ชื่อที่นิยมเขียน */
@@ -73,7 +73,7 @@ export function tonicMidi(key: KeyDef, octaveShift = 0): number {
   return Note.midi(`${key.tonic}${tonicOctave(key.tonic) + octaveShift}`)!
 }
 
-/** โน๊ต 7 ตัวของสเกล เริ่มจากโทนิกในออคเทฟที่เลื่อนไป octaveShift */
+/** โน้ต 7 ตัวของสเกล เริ่มจากโทนิกในออคเทฟที่เลื่อนไป octaveShift */
 export function scaleNotes(key: KeyDef, octaveShift = 0): ScaleNote[] {
   const root = `${key.tonic}${tonicOctave(key.tonic) + octaveShift}`
   const rootMidi = Note.midi(root)!
@@ -91,7 +91,7 @@ export function scaleNotes(key: KeyDef, octaveShift = 0): ScaleNote[] {
   })
 }
 
-/** สเกล 1 ออคเทฟรวมโทนิกตัวบน (8 โน๊ต) สำหรับเล่นไล่สเกล */
+/** สเกล 1 ออคเทฟรวมโทนิกตัวบน (8 โน้ต) สำหรับเล่นไล่สเกล */
 export function scaleWithTopTonic(key: KeyDef): ScaleNote[] {
   return [...scaleNotes(key), scaleNotes(key, 1)[0]]
 }

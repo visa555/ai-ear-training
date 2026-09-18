@@ -13,6 +13,8 @@ import {
   tonicMidi,
   type ScaleNote,
 } from '../theory/keys'
+import { Confetti } from './Confetti'
+import { Mascot, type MascotMood } from './Mascot'
 import { PianoKeyboard, type KeyMark } from './PianoKeyboard'
 
 interface Props {
@@ -21,6 +23,7 @@ interface Props {
   index: number
   total: number
   score: number
+  streak: number
   lastAnswer?: Answer
   onAnswer: (degree: number) => void
   onNext: () => void
@@ -29,18 +32,26 @@ interface Props {
 
 const PAUSE: Step = { midis: [], duration: 0, next: 0.4 }
 
-function describe(n: ScaleNote) {
-  return `ขั้นที่ ${n.degree} (${n.solfege} · ${prettyNote(n.pc)})`
+const PRAISE = ['เก่งมาก!', 'สุดยอดเลย!', 'ถูกต้องนะ!', 'หูทองจริงๆ!', 'เยี่ยมไปเลย!', 'ว้าว เก่งจัง!']
+const COMFORT = ['เกือบแล้ว!', 'ไม่เป็นไรนะ!', 'ใกล้แล้ว!', 'ลองใหม่ได้!']
+
+function name(n: ScaleNote) {
+  return (
+    <>
+      <b className={`chip deg-${n.degree}`}>{n.solfege}</b> (ตัวที่ {n.degree} · {prettyNote(n.pc)})
+    </>
+  )
 }
 
-export function QuizRunner({ config, question, index, total, score, lastAnswer, onAnswer, onNext, onQuit }: Props) {
+export function QuizRunner(props: Props) {
+  const { config, question, index, total, score, streak, lastAnswer, onAnswer, onNext, onQuit } = props
   const { key } = config
   const [active, setActive] = useState<number[]>([])
   const [playing, setPlaying] = useState(false)
   const root = tonicMidi(key)
   const answered = lastAnswer !== undefined
 
-  /** โน๊ตทุกขั้นในช่วงเสียงของแบบทดสอบ (ใช้ทั้งวาดคีย์บอร์ดและแปลงคีย์ที่กดเป็นคำตอบ) */
+  /** โน้ตทุกขั้นในช่วงเสียงของเกม (ใช้ทั้งวาดคีย์บอร์ดและแปลงคีย์ที่กดเป็นคำตอบ) */
   const fullRange = useMemo(() => buildPool(key, [...DEGREES], config.octaves), [key, config.octaves])
   const range = keyboardRange(fullRange[0].midi, fullRange[fullRange.length - 1].midi)
   const scaleByMidi = new Map(fullRange.map((n) => [n.midi, n]))
@@ -72,7 +83,7 @@ export function QuizRunner({ config, question, index, total, score, lastAnswer, 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [index])
 
-  // ตอบผิดแล้วเล่นการ resolve ให้ฟังทันที
+  // ตอบผิดแล้วพาโน้ตกลับบ้านให้ฟังทันที
   useEffect(() => {
     if (lastAnswer && !lastAnswer.correct) void playResolution()
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -111,9 +122,11 @@ export function QuizRunner({ config, question, index, total, score, lastAnswer, 
 
   const marks: Record<number, KeyMark> = {}
   for (const n of fullRange) {
+    const inGame = config.degrees.includes(n.degree)
     marks[n.midi] = {
       tone: n.degree === 1 ? 'tonic' : 'scale',
-      label: config.degrees.includes(n.degree) ? noteLabel(n, config.labelMode) : undefined,
+      degree: inGame ? n.degree : undefined,
+      label: inGame ? noteLabel(n, config.labelMode) : undefined,
     }
   }
   if (lastAnswer) {
@@ -124,47 +137,64 @@ export function QuizRunner({ config, question, index, total, score, lastAnswer, 
     }
   }
 
+  let mood: MascotMood = playing ? 'listen' : 'idle'
+  let speech = playing ? <>ตั้งใจฟังนะ… 👂</> : <>โน้ตที่ซ่อนอยู่คือตัวไหนเอ่ย? 🤔</>
+  if (lastAnswer?.correct) {
+    mood = 'happy'
+    speech = (
+      <>
+        <b>{PRAISE[index % PRAISE.length]}</b> นั่นคือ {name(question)}
+        {streak >= 3 && <span className="streak-inline"> 🔥 ถูกติดกัน {streak} ข้อ!</span>}
+      </>
+    )
+  } else if (lastAnswer) {
+    mood = 'oops'
+    speech = (
+      <>
+        <b>{COMFORT[index % COMFORT.length]}</b> โน้ตนั้นคือ {name(question)}
+        <br />
+        ฟังฉันพาโน้ตกลับบ้านนะ 🏠
+      </>
+    )
+  }
+
   return (
     <div className="card quiz">
       <div className="quiz-top">
-        <span>
-          คีย์ <strong>{keyName(key)}</strong>
+        <span className="pill">🗝️ {keyName(key)}</span>
+        <span className="pill">
+          ข้อ {index + 1}/{total}
         </span>
-        <span>
-          ข้อ {index + 1}/{total} · ถูก {score}
-        </span>
-        <button className="ghost small" onClick={onQuit}>
-          ออก
+        <span className="pill">⭐ {score}</span>
+        {streak >= 2 && <span className="pill fire">🔥 {streak}</span>}
+        <button className="ghost small quit" onClick={onQuit}>
+          ✕ ออก
         </button>
       </div>
       <div className="progress" aria-hidden>
         <div style={{ width: `${((index + (answered ? 1 : 0)) / total) * 100}%` }} />
       </div>
 
-      <div className={`prompt${lastAnswer ? (lastAnswer.correct ? ' good' : ' bad') : ''}`}>
-        {!lastAnswer && <p>{playing ? '🎧 กำลังเล่นเสียง…' : 'โน๊ตที่ได้ยินคือขั้นที่เท่าไร?'}</p>}
-        {lastAnswer?.correct && <p>✓ ถูกต้อง! {describe(question)}</p>}
-        {lastAnswer && !lastAnswer.correct && (
-          <p>
-            ✗ คุณตอบ {describe(scaleNotes(key)[lastAnswer.chosen - 1])}
-            <br />
-            คำตอบคือ {describe(question)}
-          </p>
-        )}
+      <div className="stage">
+        {lastAnswer?.correct && <Confetti key={index} />}
+        <Mascot mood={mood}>{speech}</Mascot>
       </div>
 
       <div className="answer-pad">
         {config.degrees.map((d) => {
           const n = scaleNotes(key)[d - 1]
-          let cls = ''
+          let state = ''
           if (lastAnswer) {
-            if (d === question.degree) cls = 'good'
-            else if (d === lastAnswer.chosen) cls = 'bad'
+            if (d === question.degree) state = ' right'
+            else if (d === lastAnswer.chosen) state = ' wrong'
+            else state = ' dim'
           }
           return (
-            <button key={d} className={cls} disabled={answered} onClick={() => handleAnswer(d)}>
+            <button key={d} className={`deg-${d}${state}`} disabled={answered} onClick={() => handleAnswer(d)}>
               <span className="big">{noteLabel(n, config.labelMode)}</span>
-              {config.labelMode !== 'degree' && <small>{d}</small>}
+              {config.labelMode !== 'degree' && <small>{d === 1 ? '🏠' : d}</small>}
+              {state === ' right' && <span className="mark">✓</span>}
+              {state === ' wrong' && <span className="mark">✗</span>}
             </button>
           )
         })}
@@ -173,17 +203,17 @@ export function QuizRunner({ config, question, index, total, score, lastAnswer, 
       <PianoKeyboard {...range} marks={marks} active={active} onPress={handleKeyPress} />
 
       <div className="actions">
-        <button onClick={() => playQuestion(false)}>🔁 ฟังโน๊ตอีกครั้ง</button>
-        <button onClick={() => playQuestion(true)}>🎹 ฟัง cadence + โน๊ต</button>
-        <button onClick={() => run([{ midis: [root], duration: 1.2 }], true)}>ฟังโทนิก (Do)</button>
-        {answered && <button onClick={playResolution}>ฟังการ resolve</button>}
+        <button onClick={() => playQuestion(false)}>🔁 ฟังอีกครั้ง</button>
+        <button onClick={() => playQuestion(true)}>🎶 ฟังเพลงบอกบ้าน</button>
+        <button onClick={() => run([{ midis: [root], duration: 1.2 }], true)}>🏠 ฟังโน้ตบ้าน</button>
+        {answered && <button onClick={playResolution}>🪜 พากลับบ้าน</button>}
         {answered && (
           <button className="primary" onClick={onNext}>
-            {index + 1 < total ? 'ข้อต่อไป →' : 'ดูผลลัพธ์'}
+            {index + 1 < total ? 'ข้อต่อไป ➜' : 'ดูผลลัพธ์ 🏆'}
           </button>
         )}
       </div>
-      <p className="hint">คีย์ลัด: กด 1–7 เพื่อตอบ · Enter ฟังซ้ำ/ข้อต่อไป · C ฟัง cadence</p>
+      <p className="hint">⌨️ ปุ่มลัด: กด 1–7 เพื่อตอบ · Enter ฟังซ้ำ/ข้อต่อไป · C ฟังเพลงบอกบ้าน</p>
     </div>
   )
 }

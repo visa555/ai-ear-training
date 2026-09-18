@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { MAJOR_TONICS, MINOR_TONICS, MODES, DEGREES, keyName, scaleNotes, type KeyDef } from '../theory/keys'
 import { clearProgress, keyId, loadProgress, parseKeyId, type Progress } from '../storage/progress'
-import type { Tally } from '../quiz/generator'
+import { starsFor, type Tally } from '../quiz/generator'
 
 /** 5 ระดับของ sequential ramp (สีน้ำเงินอ่อน→เข้ม) ตามความแม่นยำ */
 const BINS = [
@@ -33,7 +33,7 @@ export function StatsPage() {
   const keys = sortKeys(Object.keys(progress.byKey).map(parseKeyId))
 
   const reset = () => {
-    if (!window.confirm('ล้างสถิติทั้งหมด? การกระทำนี้ย้อนกลับไม่ได้')) return
+    if (!window.confirm('ล้างผลงานทั้งหมด? การกระทำนี้ย้อนกลับไม่ได้')) return
     clearProgress()
     setProgress(loadProgress())
   }
@@ -42,8 +42,11 @@ export function StatsPage() {
     return (
       <section className="page">
         <div className="card empty">
-          <h2>ยังไม่มีสถิติ</h2>
-          <p className="muted">ทำแบบทดสอบให้จบอย่างน้อยหนึ่งรอบ แล้วผลจะถูกบันทึกไว้ในเบราว์เซอร์นี้</p>
+          <div className="empty-icon" aria-hidden>
+            🦉
+          </div>
+          <h2>ยังไม่มีผลงานเลย</h2>
+          <p className="muted">ไปเล่นเกมทายโน้ตให้จบสักรอบ แล้วกลับมาดูผลงานที่นี่นะ!</p>
         </div>
       </section>
     )
@@ -53,27 +56,27 @@ export function StatsPage() {
     <section className="page">
       <div className="tiles">
         <div className="tile">
-          <span className="tile-label">รอบที่ฝึก</span>
+          <span className="tile-label">🎮 เล่นไปแล้ว (รอบ)</span>
           <span className="tile-value">{sessions.length}</span>
         </div>
         <div className="tile">
-          <span className="tile-label">ข้อที่ตอบ</span>
+          <span className="tile-label">🎵 ทายโน้ต (ข้อ)</span>
           <span className="tile-value">{answered}</span>
         </div>
         <div className="tile">
-          <span className="tile-label">ความแม่นยำรวม</span>
+          <span className="tile-label">🎯 ทายถูก</span>
           <span className="tile-value">{Math.round((correct / answered) * 100)}%</span>
         </div>
       </div>
 
       <div className="card">
-        <h2>ความแม่นยำแยกตามคีย์และขั้น</h2>
-        <p className="muted">สีเข้มคือแม่นยำมาก · ช่องที่เป็นขีดคือยังไม่เคยถูกถาม · ชี้ที่ช่องเพื่อดูจำนวนครั้ง</p>
+        <h2>🗺️ โน้ตไหนเก่งแล้ว โน้ตไหนต้องฝึกอีก</h2>
+        <p className="muted">ยิ่งสีเข้ม ยิ่งทายถูกบ่อย · ขีด – คือยังไม่เคยเจอ · ชี้ที่ช่องเพื่อดูจำนวนครั้ง</p>
         <div className="heatmap-wrap">
           <table className="heatmap">
             <thead>
               <tr>
-                <th scope="col">คีย์</th>
+                <th scope="col">คีย์ / ตัวที่</th>
                 {DEGREES.map((d) => (
                   <th key={d} scope="col">
                     {d}
@@ -124,21 +127,21 @@ export function StatsPage() {
       </div>
 
       <div className="card">
-        <h2>รอบล่าสุด</h2>
+        <h2>📅 เล่นล่าสุด</h2>
         <ul className="history">
           {sessions.slice(0, 15).map((s) => (
             <li key={s.at}>
               <span className="muted">{dateFmt.format(new Date(s.at))}</span>
               <span>{keyName(s.key)}</span>
               <span className="num">
-                {s.correct}/{s.total} · {Math.round((s.correct / s.total) * 100)}%
+                {s.correct}/{s.total} {'★'.repeat(starsFor(Math.round((s.correct / s.total) * 100)))}
               </span>
             </li>
           ))}
         </ul>
         <div className="actions">
           <button className="ghost danger" onClick={reset}>
-            ล้างสถิติทั้งหมด
+            🗑️ ล้างผลงานทั้งหมด
           </button>
         </div>
       </div>

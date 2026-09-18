@@ -1,16 +1,17 @@
 import { useState } from 'react'
 import type { QuizConfig } from '../quiz/generator'
-import { DEGREES, isMinor, scaleNotes, type KeyDef, type LabelMode } from '../theory/keys'
+import { DEGREES, scaleNotes, type KeyDef, type LabelMode } from '../theory/keys'
 import { KeySelector } from './KeySelector'
 import { LabelModeToggle } from './LabelModeToggle'
+import { Mascot } from './Mascot'
 
-const PRESETS: { label: string; degrees: number[] }[] = [
-  { label: 'ง่าย: 1 3 5', degrees: [1, 3, 5] },
-  { label: 'กลาง: 1 2 3 4 5', degrees: [1, 2, 3, 4, 5] },
-  { label: 'ครบ 7 ขั้น', degrees: [...DEGREES] },
+const LEVELS: { icon: string; name: string; degrees: number[] }[] = [
+  { icon: '🐣', name: 'ระดับ 1', degrees: [1, 3, 5] },
+  { icon: '🐥', name: 'ระดับ 2', degrees: [1, 2, 3, 4, 5] },
+  { icon: '🦅', name: 'ระดับ 3', degrees: [...DEGREES] },
 ]
 
-const COUNTS = [10, 20, 30]
+const COUNTS = [5, 10, 20]
 
 interface Props {
   keyDef: KeyDef
@@ -33,90 +34,104 @@ export function QuizSetup({ keyDef, onKeyChange, labelMode, onLabelModeChange, o
     setDegrees((cur) => (cur.includes(d) ? cur.filter((x) => x !== d) : [...cur, d].sort((a, b) => a - b)))
 
   return (
-    <div className="card">
-      <h2>ตั้งค่าแบบทดสอบ</h2>
-      <p className="muted">
-        แอปจะเล่น cadence {isMinor(keyDef.mode) ? 'i–iv–V–i' : 'I–IV–V–I'} เพื่อบอกคีย์ก่อน แล้วสุ่มเล่นโน๊ตหนึ่งตัว ให้คุณตอบว่าเป็นขั้นที่เท่าไรของสเกล
-      </p>
+    <>
+      <Mascot mood="cheer">
+        มาเล่น<b>เกมทายโน้ต</b>กัน! ฉันจะเล่น “เพลงบอกบ้าน” ให้ฟังก่อน แล้วซ่อนโน้ตไว้หนึ่งตัว ทายให้ถูกนะว่าเป็นตัวไหน 🎯
+      </Mascot>
 
-      <fieldset>
-        <legend>คีย์</legend>
-        <KeySelector value={keyDef} onChange={onKeyChange} />
-      </fieldset>
-
-      <fieldset>
-        <legend>ขั้นที่จะสุ่ม</legend>
-        <div className="chips">
-          {PRESETS.map((p) => (
+      <div className="card">
+        <h2>1️⃣ เลือกด่าน</h2>
+        <div className="levels">
+          {LEVELS.map((level) => (
             <button
-              key={p.label}
-              className={p.degrees.join() === degrees.join() ? 'selected' : ''}
-              onClick={() => setDegrees(p.degrees)}
+              key={level.name}
+              className={`level${level.degrees.join() === degrees.join() ? ' selected' : ''}`}
+              onClick={() => setDegrees(level.degrees)}
             >
-              {p.label}
+              <span className="level-icon">{level.icon}</span>
+              <span className="level-name">{level.name}</span>
+              <span className="level-notes">
+                {level.degrees.map((d) => (
+                  <i key={d} className={`dot deg-${d}`} title={notes[d - 1].solfege} />
+                ))}
+              </span>
+              <small>{level.degrees.map((d) => notes[d - 1].solfege).join(' ')}</small>
             </button>
           ))}
         </div>
-        <div className="degree-toggles">
-          {DEGREES.map((d) => (
-            <label key={d} className={degrees.includes(d) ? 'on' : ''}>
-              <input type="checkbox" checked={degrees.includes(d)} onChange={() => toggleDegree(d)} />
-              <span>{d}</span>
-              <small>{notes[d - 1].solfege}</small>
-            </label>
-          ))}
-        </div>
-        {degrees.length < 2 && <p className="warn">เลือกอย่างน้อย 2 ขั้น</p>}
-      </fieldset>
-
-      <div className="setup-row">
-        <fieldset>
-          <legend>ช่วงเสียง</legend>
-          <div className="segmented">
-            {([1, 2] as const).map((o) => (
-              <button key={o} className={octaves === o ? 'selected' : ''} onClick={() => setOctaves(o)}>
-                {o} ออคเทฟ
-              </button>
-            ))}
-          </div>
-        </fieldset>
-
-        <fieldset>
-          <legend>จำนวนข้อ</legend>
-          <div className="segmented">
-            {COUNTS.map((c) => (
-              <button key={c} className={count === c ? 'selected' : ''} onClick={() => setCount(c)}>
-                {c}
-              </button>
-            ))}
-          </div>
-        </fieldset>
       </div>
 
-      <fieldset>
-        <legend>ปุ่มคำตอบแสดงเป็น</legend>
-        <LabelModeToggle value={labelMode} onChange={onLabelModeChange} />
-      </fieldset>
+      <div className="card">
+        <h2>2️⃣ เลือกคีย์</h2>
+        <KeySelector value={keyDef} onChange={onKeyChange} />
+      </div>
 
-      <label className="switch">
-        <input type="checkbox" checked={cadenceEvery} onChange={(e) => setCadenceEvery(e.target.checked)} />
-        เล่น cadence ก่อนทุกข้อ (ถ้าปิด จะเล่นแค่ข้อแรก)
-      </label>
+      <details className="card more">
+        <summary>⚙️ ตั้งค่าเพิ่มเติม (สำหรับคุณครูและผู้ปกครอง)</summary>
 
-      <label className="switch">
-        <input type="checkbox" checked={adaptive} onChange={(e) => setAdaptive(e.target.checked)} />
-        เน้นขั้นที่เคยตอบผิดบ่อย (ใช้สถิติสะสมของคีย์นี้)
-      </label>
+        <fieldset>
+          <legend>เลือกโน้ตที่จะสุ่มเอง</legend>
+          <div className="degree-toggles">
+            {DEGREES.map((d) => (
+              <label key={d} className={`deg-${d}${degrees.includes(d) ? ' on' : ''}`}>
+                <input type="checkbox" checked={degrees.includes(d)} onChange={() => toggleDegree(d)} />
+                <span>{notes[d - 1].solfege}</span>
+                <small>ตัวที่ {d}</small>
+              </label>
+            ))}
+          </div>
+        </fieldset>
 
-      <div className="actions">
+        <div className="setup-row">
+          <fieldset>
+            <legend>ช่วงเสียง</legend>
+            <div className="segmented">
+              {([1, 2] as const).map((o) => (
+                <button key={o} className={octaves === o ? 'selected' : ''} onClick={() => setOctaves(o)}>
+                  {o} ออคเทฟ
+                </button>
+              ))}
+            </div>
+          </fieldset>
+
+          <fieldset>
+            <legend>จำนวนข้อ</legend>
+            <div className="segmented">
+              {COUNTS.map((c) => (
+                <button key={c} className={count === c ? 'selected' : ''} onClick={() => setCount(c)}>
+                  {c} ข้อ
+                </button>
+              ))}
+            </div>
+          </fieldset>
+        </div>
+
+        <fieldset>
+          <legend>ปุ่มคำตอบแสดงเป็น</legend>
+          <LabelModeToggle value={labelMode} onChange={onLabelModeChange} />
+        </fieldset>
+
+        <label className="switch">
+          <input type="checkbox" checked={cadenceEvery} onChange={(e) => setCadenceEvery(e.target.checked)} />
+          เล่นเพลงบอกบ้าน (cadence) ก่อนทุกข้อ · ถ้าปิดจะเล่นแค่ข้อแรก
+        </label>
+
+        <label className="switch">
+          <input type="checkbox" checked={adaptive} onChange={(e) => setAdaptive(e.target.checked)} />
+          ให้โน้ตที่เคยตอบผิดบ่อยออกบ่อยขึ้น (ใช้สถิติที่บันทึกไว้ของคีย์นี้)
+        </label>
+      </details>
+
+      {degrees.length < 2 && <p className="warn">เลือกโน้ตอย่างน้อย 2 ตัวนะ</p>}
+      <div className="start-row">
         <button
-          className="primary large"
+          className="primary huge"
           disabled={degrees.length < 2 || loading}
           onClick={() => onStart({ key: keyDef, degrees, octaves, count, labelMode, cadenceEvery, adaptive })}
         >
-          {loading ? 'กำลังโหลดเสียงเปียโน…' : 'เริ่มแบบทดสอบ'}
+          {loading ? '🎹 กำลังเตรียมเปียโน…' : '▶ เริ่มเล่นเลย!'}
         </button>
       </div>
-    </div>
+    </>
   )
 }
