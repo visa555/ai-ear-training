@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { stopAll, type AudioStatus } from './audio/engine'
 import { useAudioStatus } from './audio/useAudio'
 import { ExplorerPage } from './pages/ExplorerPage'
-import { QuizPage } from './pages/QuizPage'
+import { GamesPage } from './pages/GamesPage'
 import { StatsPage } from './pages/StatsPage'
 import { TipsPage } from './pages/TipsPage'
 import type { KeyDef, LabelMode } from './theory/keys'
@@ -11,7 +11,7 @@ type Tab = 'explore' | 'quiz' | 'stats' | 'tips'
 
 const TABS: { value: Tab; icon: string; label: string }[] = [
   { value: 'explore', icon: '🎹', label: 'รู้จักโน้ต' },
-  { value: 'quiz', icon: '🎯', label: 'เกมทายโน้ต' },
+  { value: 'quiz', icon: '🎮', label: 'เกม' },
   { value: 'stats', icon: '⭐', label: 'ผลงานของฉัน' },
   { value: 'tips', icon: '💡', label: 'เคล็ดลับ' },
 ]
@@ -64,7 +64,7 @@ export default function App() {
 
       <main>
         {tab === 'explore' && <ExplorerPage {...shared} />}
-        {tab === 'quiz' && <QuizPage {...shared} />}
+        {tab === 'quiz' && <GamesPage {...shared} />}
         {tab === 'stats' && <StatsPage />}
         {tab === 'tips' && <TipsPage />}
       </main>

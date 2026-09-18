@@ -1,16 +1,11 @@
 import { useState } from 'react'
+import { LEVELS } from '../content/levels'
 import { KID_TIPS, randomTipIndex } from '../content/tips'
 import type { QuizConfig } from '../quiz/generator'
 import { DEGREES, scaleNotes, type KeyDef, type LabelMode } from '../theory/keys'
 import { KeySelector } from './KeySelector'
 import { LabelModeToggle } from './LabelModeToggle'
 import { Mascot } from './Mascot'
-
-const LEVELS: { icon: string; name: string; degrees: number[] }[] = [
-  { icon: '🐣', name: 'ระดับ 1', degrees: [1, 3, 5] },
-  { icon: '🐥', name: 'ระดับ 2', degrees: [1, 2, 3, 4, 5] },
-  { icon: '🦅', name: 'ระดับ 3', degrees: [...DEGREES] },
-]
 
 const COUNTS = [5, 10, 20]
 

@@ -5,6 +5,7 @@ import { KeySelector } from '../components/KeySelector'
 import { LabelModeToggle } from '../components/LabelModeToggle'
 import { Mascot } from '../components/Mascot'
 import { PianoKeyboard, type KeyMark } from '../components/PianoKeyboard'
+import { StaffLesson } from '../components/StaffLesson'
 import {
   isMinor,
   keyboardRange,
@@ -27,7 +28,10 @@ interface Props {
   onLabelModeChange: (mode: LabelMode) => void
 }
 
+type View = 'piano' | 'staff'
+
 export function ExplorerPage({ keyDef, onKeyChange, labelMode, onLabelModeChange }: Props) {
+  const [view, setView] = useState<View>('piano')
   const [active, setActive] = useState<number[]>([])
   const info = keyInfo(keyDef)
   const scale = scaleWithTopTonic(keyDef)
@@ -60,8 +64,45 @@ export function ExplorerPage({ keyDef, onKeyChange, labelMode, onLabelModeChange
   const scaleSteps = (notes: ScaleNote[]): Step[] =>
     notes.map((n, i) => ({ midis: [n.midi], duration: i === notes.length - 1 ? 1.2 : 0.5, next: 0.5 }))
 
+  const toggle = (
+    <div className="view-toggle">
+      <div className="segmented" role="radiogroup" aria-label="เลือกบทเรียน">
+        {(
+          [
+            ['piano', '🎹 เปียโนและคีย์'],
+            ['staff', '🎼 บรรทัด 5 เส้น'],
+          ] as const
+        ).map(([value, label]) => (
+          <button
+            key={value}
+            role="radio"
+            aria-checked={view === value}
+            className={view === value ? 'selected' : ''}
+            onClick={() => {
+              stopAll()
+              setActive([])
+              setView(value)
+            }}
+          >
+            {label}
+          </button>
+        ))}
+      </div>
+    </div>
+  )
+
+  if (view === 'staff') {
+    return (
+      <section className="page">
+        {toggle}
+        <StaffLesson />
+      </section>
+    )
+  }
+
   return (
     <section className="page">
+      {toggle}
       <Mascot>
         สวัสดี! ฉันชื่อ<b>น้องฮูก</b> 🦉 มารู้จักโน้ตกันนะ ลองแตะคีย์เปียโนสีๆ ข้างล่าง
         หรือกดปุ่ม <b>ไต่บันไดขึ้น</b> ฟังดูสิ
