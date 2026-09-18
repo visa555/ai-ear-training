@@ -250,8 +250,11 @@ button.danger {
 }
 
 .logo {
-  font-size: 2.8rem;
-  line-height: 1;
+  display: block;
+  width: 3rem;
+  height: 3rem;
+  flex-shrink: 0;
+  filter: drop-shadow(0 3px 0 rgb(43 35 80 / 0.12));
   animation: bob 3s ease-in-out infinite;
 }
 
@@ -1284,7 +1287,8 @@ legend {
   }
 
   .logo {
-    font-size: 2.3rem;
+    width: 2.5rem;
+    height: 2.5rem;
   }
 
   .mascot-face {

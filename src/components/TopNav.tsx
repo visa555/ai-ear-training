@@ -1,4 +1,5 @@
 import { useEffect, useLayoutEffect, useRef, useState, type RefObject } from 'react'
+import { OwlLogo } from './OwlLogo'
 
 export interface NavItem<T extends string> {
   value: T
@@ -101,11 +102,9 @@ export function TopNav<T extends string>({ items, current, onSelect, status, sta
     <header className="app-header" ref={headerRef}>
       <div className="brand">
         <div className="brand-core" ref={brandRef}>
-          <span className="logo" aria-hidden>
-            🦉
-          </span>
+          <OwlLogo className="logo" />
           <h1>
-            หูทองน้อย <span className="notes" aria-hidden>♪♫</span>
+            Listen to me <span className="notes" aria-hidden>♪♫</span>
           </h1>
         </div>
         <p className={`status ${statusClass}`}>{status}</p>
