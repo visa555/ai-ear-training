@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { KID_TIPS, randomTipIndex } from '../content/tips'
 import type { QuizConfig } from '../quiz/generator'
 import { DEGREES, scaleNotes, type KeyDef, type LabelMode } from '../theory/keys'
 import { KeySelector } from './KeySelector'
@@ -28,7 +29,9 @@ export function QuizSetup({ keyDef, onKeyChange, labelMode, onLabelModeChange, o
   const [count, setCount] = useState(10)
   const [cadenceEvery, setCadenceEvery] = useState(true)
   const [adaptive, setAdaptive] = useState(true)
+  const [tipIndex, setTipIndex] = useState(() => randomTipIndex())
   const notes = scaleNotes(keyDef)
+  const tip = KID_TIPS[tipIndex]
 
   const toggleDegree = (d: number) =>
     setDegrees((cur) => (cur.includes(d) ? cur.filter((x) => x !== d) : [...cur, d].sort((a, b) => a - b)))
@@ -37,6 +40,12 @@ export function QuizSetup({ keyDef, onKeyChange, labelMode, onLabelModeChange, o
     <>
       <Mascot mood="cheer">
         มาเล่น<b>เกมทายโน้ต</b>กัน! ฉันจะเล่น “เพลงบอกบ้าน” ให้ฟังก่อน แล้วซ่อนโน้ตไว้หนึ่งตัว ทายให้ถูกนะว่าเป็นตัวไหน 🎯
+        <span className="tip-line">
+          💡 <b>เคล็ดลับ:</b> {tip.short}{' '}
+          <button className="ghost small" onClick={() => setTipIndex((i) => randomTipIndex(i))}>
+            🔄 อีกข้อ
+          </button>
+        </span>
       </Mascot>
 
       <div className="card">

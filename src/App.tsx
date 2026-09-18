@@ -4,14 +4,16 @@ import { useAudioStatus } from './audio/useAudio'
 import { ExplorerPage } from './pages/ExplorerPage'
 import { QuizPage } from './pages/QuizPage'
 import { StatsPage } from './pages/StatsPage'
+import { TipsPage } from './pages/TipsPage'
 import type { KeyDef, LabelMode } from './theory/keys'
 
-type Tab = 'explore' | 'quiz' | 'stats'
+type Tab = 'explore' | 'quiz' | 'stats' | 'tips'
 
 const TABS: { value: Tab; icon: string; label: string }[] = [
   { value: 'explore', icon: '🎹', label: 'รู้จักโน้ต' },
   { value: 'quiz', icon: '🎯', label: 'เกมทายโน้ต' },
   { value: 'stats', icon: '⭐', label: 'ผลงานของฉัน' },
+  { value: 'tips', icon: '💡', label: 'เคล็ดลับ' },
 ]
 
 const STATUS_TEXT: Record<AudioStatus, string> = {
@@ -64,6 +66,7 @@ export default function App() {
         {tab === 'explore' && <ExplorerPage {...shared} />}
         {tab === 'quiz' && <QuizPage {...shared} />}
         {tab === 'stats' && <StatsPage />}
+        {tab === 'tips' && <TipsPage />}
       </main>
 
       <footer className="app-footer">
