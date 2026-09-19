@@ -21,9 +21,12 @@ const recorded = new WeakSet<object>()
 export function QuizPage(props: Props) {
   const quiz = useQuiz()
   const [loading, setLoading] = useState(false)
+  /** เปลี่ยนทุกครั้งที่เริ่มรอบใหม่ ให้หน้าจอเกมเริ่มต้นใหม่ทั้งหมด (รวมถึงเล่นเสียงข้อแรกใหม่) */
+  const [round, setRound] = useState(0)
   const { session } = quiz
 
   const begin = (config: QuizConfig) => {
+    setRound((r) => r + 1)
     if (!config.adaptive) return quiz.start(config)
     const tallies = loadProgress().byKey[keyId(config.key)] ?? {}
     quiz.start(config, (note) => degreeWeight(tallies[note.degree]))
@@ -49,6 +52,7 @@ export function QuizPage(props: Props) {
 
       {session && quiz.question && (
         <QuizRunner
+          key={round}
           config={session.config}
           question={quiz.question}
           index={session.index}
@@ -58,6 +62,7 @@ export function QuizPage(props: Props) {
           lastAnswer={quiz.lastAnswer}
           onAnswer={quiz.answer}
           onNext={quiz.next}
+          onRestart={() => begin(session.config)}
           onQuit={quiz.reset}
         />
       )}

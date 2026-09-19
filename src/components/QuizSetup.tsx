@@ -6,6 +6,7 @@ import { DEGREES, scaleNotes, type KeyDef, type LabelMode } from '../theory/keys
 import { KeySelector } from './KeySelector'
 import { LabelModeToggle } from './LabelModeToggle'
 import { Mascot } from './Mascot'
+import { TimerSelect } from './TimerControls'
 
 const COUNTS = [5, 10, 20]
 
@@ -24,6 +25,7 @@ export function QuizSetup({ keyDef, onKeyChange, labelMode, onLabelModeChange, o
   const [count, setCount] = useState(10)
   const [cadenceEvery, setCadenceEvery] = useState(true)
   const [adaptive, setAdaptive] = useState(true)
+  const [timeLimit, setTimeLimit] = useState(0)
   const [tipIndex, setTipIndex] = useState(() => randomTipIndex())
   const notes = scaleNotes(keyDef)
   const tip = KID_TIPS[tipIndex]
@@ -68,6 +70,11 @@ export function QuizSetup({ keyDef, onKeyChange, labelMode, onLabelModeChange, o
       <div className="card">
         <h2>2️⃣ เลือกคีย์</h2>
         <KeySelector value={keyDef} onChange={onKeyChange} />
+      </div>
+
+      <div className="card">
+        <TimerSelect value={timeLimit} onChange={setTimeLimit} unit="ต่อข้อ" />
+        <p className="hint left">เริ่มนับหลังเสียงเล่นจบ และหยุดนับระหว่างกดฟังซ้ำ</p>
       </div>
 
       <details className="card more">
@@ -131,7 +138,7 @@ export function QuizSetup({ keyDef, onKeyChange, labelMode, onLabelModeChange, o
         <button
           className="primary huge"
           disabled={degrees.length < 2 || loading}
-          onClick={() => onStart({ key: keyDef, degrees, octaves, count, labelMode, cadenceEvery, adaptive })}
+          onClick={() => onStart({ key: keyDef, degrees, octaves, count, labelMode, cadenceEvery, adaptive, timeLimit })}
         >
           {loading ? '🎹 กำลังเตรียมเปียโน…' : '▶ เริ่มเล่นเลย!'}
         </button>

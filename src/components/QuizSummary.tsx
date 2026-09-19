@@ -19,6 +19,7 @@ export function QuizSummary({ config, answers, onRetry, onSetup }: Props) {
   const correct = answers.filter((a) => a.correct).length
   const pct = Math.round((correct / answers.length) * 100)
   const stars = starsFor(pct)
+  const timeouts = answers.filter((a) => a.chosen === 0).length
   const notes = scaleNotes(config.key)
 
   return (
@@ -33,7 +34,10 @@ export function QuizSummary({ config, answers, onRetry, onSetup }: Props) {
       <p className="summary-score">
         ตอบถูก <b>{correct}</b> จาก {answers.length} ข้อ
       </p>
-      <p className="muted center">คีย์ {keyName(config.key)}</p>
+      <p className="muted center">
+        คีย์ {keyName(config.key)}
+        {timeouts > 0 && <> · ⏰ หมดเวลา {timeouts} ข้อ</>}
+      </p>
 
       <Mascot mood={stars === 2 ? 'happy' : 'cheer'}>{MESSAGE[stars]}</Mascot>
 

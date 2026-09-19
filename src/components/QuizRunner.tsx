@@ -13,9 +13,12 @@ import {
   tonicMidi,
   type ScaleNote,
 } from '../theory/keys'
+import { useCountdown } from '../lib/useCountdown'
 import { Confetti } from './Confetti'
+import { GameTopActions } from './GameTopActions'
 import { Mascot, type MascotMood } from './Mascot'
 import { PianoKeyboard, type KeyMark } from './PianoKeyboard'
+import { TimerBar } from './TimerControls'
 
 interface Props {
   config: QuizConfig
@@ -27,6 +30,7 @@ interface Props {
   lastAnswer?: Answer
   onAnswer: (degree: number) => void
   onNext: () => void
+  onRestart: () => void
   onQuit: () => void
 }
 
@@ -44,7 +48,7 @@ function name(n: ScaleNote) {
 }
 
 export function QuizRunner(props: Props) {
-  const { config, question, index, total, score, streak, lastAnswer, onAnswer, onNext, onQuit } = props
+  const { config, question, index, total, score, streak, lastAnswer, onAnswer, onNext, onRestart, onQuit } = props
   const { key } = config
   const [active, setActive] = useState<number[]>([])
   const [playing, setPlaying] = useState(false)
@@ -96,6 +100,19 @@ export function QuizRunner(props: Props) {
     onAnswer(degree)
   }
 
+  // จับเวลาเฉพาะตอนที่เด็กตอบได้: หยุดระหว่างเล่นเสียง และเริ่มใหม่ทุกข้อ · หมดเวลา = ตอบ 0 (นับเป็นผิด)
+  const remaining = useCountdown({
+    seconds: config.timeLimit,
+    running: !answered && !playing,
+    resetKey: index,
+    onExpire: () => {
+      stopAll()
+      setPlaying(false)
+      onAnswer(0)
+    },
+  })
+  const timedOut = lastAnswer?.chosen === 0
+
   const handleKeyPress = (midi: number) => {
     if (answered) {
       playNotes([midi], 1)
@@ -131,7 +148,7 @@ export function QuizRunner(props: Props) {
   }
   if (lastAnswer) {
     marks[question.midi] = { ...marks[question.midi], tone: 'correct' }
-    if (!lastAnswer.correct) {
+    if (!lastAnswer.correct && !timedOut) {
       const chosen = scaleNotes(key, question.octaveShift)[lastAnswer.chosen - 1]
       marks[chosen.midi] = { ...marks[chosen.midi], tone: 'wrong' }
     }
@@ -151,7 +168,7 @@ export function QuizRunner(props: Props) {
     mood = 'oops'
     speech = (
       <>
-        <b>{COMFORT[index % COMFORT.length]}</b> โน้ตนั้นคือ {name(question)}
+        <b>{timedOut ? '⏰ หมดเวลา! ไม่เป็นไรนะ' : COMFORT[index % COMFORT.length]}</b> โน้ตนั้นคือ {name(question)}
         <br />
         ฟังฉันพาโน้ตกลับบ้านนะ 🏠
       </>
@@ -167,13 +184,14 @@ export function QuizRunner(props: Props) {
         </span>
         <span className="pill">⭐ {score}</span>
         {streak >= 2 && <span className="pill fire">🔥 {streak}</span>}
-        <button className="ghost small quit" onClick={onQuit}>
-          ✕ ออก
-        </button>
+        <GameTopActions onRestart={onRestart} onQuit={onQuit} />
       </div>
       <div className="progress" aria-hidden>
         <div style={{ width: `${((index + (answered ? 1 : 0)) / total) * 100}%` }} />
       </div>
+      {config.timeLimit > 0 && (
+        <TimerBar remainingMs={remaining} seconds={config.timeLimit} paused={playing && !answered} />
+      )}
 
       <div className="stage">
         {lastAnswer?.correct && <Confetti key={index} />}

@@ -9,12 +9,15 @@ export interface QuizConfig {
   labelMode: LabelMode
   /** เล่น cadence ก่อนทุกข้อ (ถ้าปิด จะเล่นเฉพาะข้อแรก) */
   cadenceEvery: boolean
+  /** เวลาตอบต่อข้อ (วินาที) 0 = ไม่จับเวลา */
+  timeLimit: number
   /** สุ่มขั้นที่เคยตอบผิดบ่อยให้ออกบ่อยขึ้น */
   adaptive: boolean
 }
 
 export interface Answer {
   question: ScaleNote
+  /** ขั้นที่เลือก หรือ 0 ถ้าหมดเวลา */
   chosen: number
   correct: boolean
 }

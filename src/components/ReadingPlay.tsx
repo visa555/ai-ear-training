@@ -1,11 +1,14 @@
 import { useEffect, useState } from 'react'
 import { playNotes, stopAll } from '../audio/engine'
 import { describePosition, fixedSolfege, LETTERS, type StaffNote } from '../notation/staff'
+import { useCountdown } from '../lib/useCountdown'
 import { answerLetters, generateReadingQuestions, isCorrectLetter, readingKeyboardRange } from '../reading/logic'
 import { Confetti } from './Confetti'
+import { GameTopActions } from './GameTopActions'
 import { Mascot, type MascotMood } from './Mascot'
 import { PianoKeyboard, type KeyMark } from './PianoKeyboard'
 import { Staff } from './Staff'
+import { TimerBar } from './TimerControls'
 
 export interface ReadingConfig {
   notes: string[]
@@ -14,10 +17,13 @@ export interface ReadingConfig {
   colored: boolean
   adaptive: boolean
   count: number
+  /** เวลาตอบต่อข้อ (วินาที) 0 = ไม่จับเวลา */
+  timeLimit: number
 }
 
 export interface ReadingAnswer {
   question: StaffNote
+  /** ตัวอักษรที่เลือก หรือ '' ถ้าหมดเวลา */
   chosen: string
   correct: boolean
 }
@@ -27,6 +33,7 @@ interface Props {
   /** น้ำหนักการสุ่มของแต่ละโน้ต (ตัวที่อ่านพลาดบ่อยได้น้ำหนักมาก) */
   weight?: (note: StaffNote) => number
   onDone: (answers: ReadingAnswer[]) => void
+  onRestart: () => void
   onQuit: () => void
 }
 
@@ -41,7 +48,7 @@ function chip(n: StaffNote) {
   )
 }
 
-export function ReadingPlay({ config, weight, onDone, onQuit }: Props) {
+export function ReadingPlay({ config, weight, onDone, onRestart, onQuit }: Props) {
   const [questions] = useState(() => generateReadingQuestions(config.notes, config.count, Math.random, weight))
   const [index, setIndex] = useState(0)
   const [answers, setAnswers] = useState<ReadingAnswer[]>([])
@@ -63,6 +70,15 @@ export function ReadingPlay({ config, weight, onDone, onQuit }: Props) {
     // อ่านก่อน แล้วค่อยได้ยินเสียงของโน้ตที่อ่าน
     playNotes([question.midi], 1.2)
   }
+
+  // จับเวลาตั้งแต่โน้ตปรากฏ · หมดเวลา = ไม่ได้ตอบ (นับเป็นผิด)
+  const remaining = useCountdown({
+    seconds: config.timeLimit,
+    running: !answered,
+    resetKey: index,
+    onExpire: () => answer(''),
+  })
+  const timedOut = answered && last.chosen === ''
 
   const next = () => {
     if (!answered) return
@@ -118,7 +134,8 @@ export function ReadingPlay({ config, weight, onDone, onQuit }: Props) {
     mood = 'oops'
     speech = (
       <>
-        <b>{COMFORT[index % COMFORT.length]}</b> นี่คือ {chip(question)} {where} ไม่ใช่ {last.chosen}
+        <b>{timedOut ? '⏰ หมดเวลา! ไม่เป็นไรนะ' : COMFORT[index % COMFORT.length]}</b> นี่คือ {chip(question)} {where}
+        {!timedOut && <> ไม่ใช่ {last.chosen}</>}
       </>
     )
   }
@@ -131,13 +148,12 @@ export function ReadingPlay({ config, weight, onDone, onQuit }: Props) {
           ข้อ {index + 1}/{questions.length}
         </span>
         <span className="pill">⭐ {score}</span>
-        <button className="ghost small quit" onClick={onQuit}>
-          ✕ ออก
-        </button>
+        <GameTopActions onRestart={onRestart} onQuit={onQuit} />
       </div>
       <div className="progress" aria-hidden>
         <div style={{ width: `${((index + (answered ? 1 : 0)) / questions.length) * 100}%` }} />
       </div>
+      {config.timeLimit > 0 && <TimerBar remainingMs={remaining} seconds={config.timeLimit} />}
 
       <div className="stage">
         {last?.correct && <Confetti key={index} />}

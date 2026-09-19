@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import { cadenceSteps } from '../audio/cadence'
 import { playNotes, playSequence, stopAll, type Step } from '../audio/engine'
 import { checkInput, extendSequence, MAX_HEARTS, startSequence } from '../echo/logic'
+import { useCountdown } from '../lib/useCountdown'
 import { buildPool } from '../quiz/generator'
 import {
   isMinor,
@@ -15,8 +16,10 @@ import {
   noteLabel,
 } from '../theory/keys'
 import { Confetti } from './Confetti'
+import { GameTopActions } from './GameTopActions'
 import { Mascot, type MascotMood } from './Mascot'
 import { PianoKeyboard, type KeyMark } from './PianoKeyboard'
+import { TimerBar } from './TimerControls'
 
 export interface EchoConfig {
   key: KeyDef
@@ -24,12 +27,15 @@ export interface EchoConfig {
   labelMode: LabelMode
   /** ให้เปียโนกระพริบตามโน้ตที่น้องฮูกเล่น (โหมดง่าย) */
   lights: boolean
+  /** เวลากดต่อโน้ต (วินาที) 0 = ไม่จับเวลา */
+  timeLimit: number
 }
 
 interface Props {
   config: EchoConfig
   best: number
   onFinish: (longest: number) => void
+  onRestart: () => void
   onQuit: () => void
 }
 
@@ -38,7 +44,7 @@ type Phase = 'listen' | 'turn' | 'success' | 'oops'
 const PAUSE: Step = { midis: [], duration: 0, next: 0.5 }
 const PRAISE = ['เก่งมาก!', 'จำได้เป๊ะเลย!', 'สุดยอด!', 'หูทองจริงๆ!', 'ว้าว!']
 
-export function EchoPlay({ config, best, onFinish, onQuit }: Props) {
+export function EchoPlay({ config, best, onFinish, onRestart, onQuit }: Props) {
   const { key, degrees, labelMode, lights } = config
   const root = tonicMidi(key)
   const pool = useMemo(() => buildPool(key, degrees, 1), [key, degrees])
@@ -54,6 +60,9 @@ export function EchoPlay({ config, best, onFinish, onQuit }: Props) {
   const [active, setActive] = useState<number[]>([])
   const [round, setRound] = useState(1)
   const [wrongAt, setWrongAt] = useState<number | null>(null)
+  const [timedOut, setTimedOut] = useState(false)
+  /** นับจำนวนครั้งที่เล่นทำนอง ใช้เริ่มจับเวลาใหม่ทุกครั้งที่ถึงตาเด็ก */
+  const [playCount, setPlayCount] = useState(0)
 
   const timers = useRef<number[]>([])
   const later = (fn: () => void, ms: number) => {
@@ -64,6 +73,8 @@ export function EchoPlay({ config, best, onFinish, onQuit }: Props) {
     setPhase('listen')
     setInputIndex(0)
     setWrongAt(null)
+    setTimedOut(false)
+    setPlayCount((c) => c + 1)
     setActive([])
     const steps: Step[] = [
       ...(withCadence ? [...cadenceSteps(root, isMinor(key.mode)), PAUSE] : []),
@@ -111,14 +122,28 @@ export function EchoPlay({ config, best, onFinish, onQuit }: Props) {
         void play(next, false)
       }, 1600)
     } else {
-      const left = hearts - 1
-      setHearts(left)
-      setWrongAt(inputIndex)
-      setPhase('oops')
-      if (left <= 0) later(() => onFinish(longest), 1800)
-      else later(() => void play(sequence, false), 1800)
+      fail()
     }
   }
+
+  /** กดผิดหรือหมดเวลา: เสียหัวใจ แล้วเล่นทำนองเดิมให้ลองใหม่ (หรือจบเกมถ้าหัวใจหมด) */
+  const fail = (outOfTime = false) => {
+    const left = hearts - 1
+    setHearts(left)
+    setWrongAt(inputIndex)
+    setTimedOut(outOfTime)
+    setPhase('oops')
+    if (left <= 0) later(() => onFinish(longest), 1800)
+    else later(() => void play(sequence, false), 1800)
+  }
+
+  // จับเวลาต่อโน้ต: เริ่มใหม่ทุกครั้งที่กดถูกหนึ่งตัว และทุกครั้งที่เล่นทำนองซ้ำ
+  const remaining = useCountdown({
+    seconds: config.timeLimit,
+    running: phase === 'turn',
+    resetKey: `${playCount}-${inputIndex}`,
+    onExpire: () => fail(true),
+  })
 
   const pressDegree = (degree: number) => {
     const note = pool.find((n) => n.degree === degree)
@@ -181,7 +206,7 @@ export function EchoPlay({ config, best, onFinish, onQuit }: Props) {
     speech =
       hearts > 0 ? (
         <>
-          <b>อุ๊ย เกือบแล้ว!</b> ไม่เป็นไรนะ ฟังอีกทีแล้วลองใหม่ 💪
+          <b>{timedOut ? '⏰ หมดเวลา!' : 'อุ๊ย เกือบแล้ว!'}</b> ไม่เป็นไรนะ ฟังอีกทีแล้วลองใหม่ 💪
         </>
       ) : (
         <>
@@ -200,10 +225,12 @@ export function EchoPlay({ config, best, onFinish, onQuit }: Props) {
           {'🤍'.repeat(MAX_HEARTS - hearts)}
         </span>
         {best > 0 && <span className="pill">🏅 สถิติ {best}</span>}
-        <button className="ghost small quit" onClick={onQuit}>
-          ✕ ออก
-        </button>
+        <GameTopActions onRestart={onRestart} onQuit={onQuit} />
       </div>
+
+      {config.timeLimit > 0 && (
+        <TimerBar remainingMs={remaining} seconds={config.timeLimit} paused={phase === 'listen'} />
+      )}
 
       <div className="seq-dots" aria-label={`ทำนองยาว ${sequence.length} โน้ต`}>
         {sequence.map((n, i) => {

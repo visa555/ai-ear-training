@@ -3,6 +3,7 @@ import { ensureAudio } from '../audio/engine'
 import { Mascot } from '../components/Mascot'
 import { ReadingPlay, type ReadingAnswer, type ReadingConfig } from '../components/ReadingPlay'
 import { Staff } from '../components/Staff'
+import { TimerSelect } from '../components/TimerControls'
 import { fixedSolfege, LETTERS, staffNote, type StaffNote } from '../notation/staff'
 import { degreeWeight, starsFor } from '../quiz/generator'
 import { READING_LEVELS } from '../reading/logic'
@@ -19,6 +20,7 @@ export function ReadingPage() {
   const [levelIndex, setLevelIndex] = useState(0)
   const [colored, setColored] = useState(true)
   const [adaptive, setAdaptive] = useState(true)
+  const [timeLimit, setTimeLimit] = useState(0)
   const [loading, setLoading] = useState(false)
   const [stage, setStage] = useState<Stage>({ name: 'setup' })
 
@@ -34,7 +36,7 @@ export function ReadingPage() {
     await ensureAudio()
     setLoading(false)
     const level = READING_LEVELS[levelIndex]
-    begin({ notes: level.notes, level: level.name, colored, adaptive, count: COUNT })
+    begin({ notes: level.notes, level: level.name, colored, adaptive, count: COUNT, timeLimit })
   }
 
   if (stage.name === 'play') {
@@ -43,6 +45,7 @@ export function ReadingPage() {
         key={stage.round}
         config={stage.config}
         weight={stage.weight}
+        onRestart={() => begin(stage.config)}
         onQuit={() => setStage({ name: 'setup' })}
         onDone={(answers) => {
           recordReadingSession(
@@ -59,6 +62,7 @@ export function ReadingPage() {
     const { answers, config } = stage
     const correct = answers.filter((a) => a.correct).length
     const stars = starsFor(Math.round((correct / answers.length) * 100))
+    const timeouts = answers.filter((a) => a.chosen === '').length
     const byLetter = LETTERS.map((letter, i) => {
       const asked = answers.filter((a) => a.question.letter === letter)
       return { letter, letterIndex: i, total: asked.length, correct: asked.filter((a) => a.correct).length }
@@ -76,6 +80,7 @@ export function ReadingPage() {
         <p className="summary-score">
           อ่านถูก <b>{correct}</b> จาก {answers.length} ตัว
         </p>
+        {timeouts > 0 && <p className="muted center">⏰ หมดเวลา {timeouts} ตัว</p>}
         <Mascot mood={stars === 2 ? 'happy' : 'cheer'}>
           {stars === 3
             ? config.colored
@@ -169,6 +174,7 @@ export function ReadingPage() {
             🎯 <b>เน้นโน้ตที่อ่านพลาดบ่อย</b> · ใช้ผลที่บันทึกไว้ ให้ตัวที่ยังไม่แม่นออกบ่อยขึ้น
           </span>
         </label>
+        <TimerSelect value={timeLimit} onChange={setTimeLimit} unit="ต่อข้อ" />
         {levelIndex === 3 && (
           <p className="hint">🚀 ด่านนี้มีโน้ตเส้นน้อย ลองดูบทเรียน “เส้นน้อย” ในเมนูอ่านโน้ตก่อนเล่นนะ</p>
         )}

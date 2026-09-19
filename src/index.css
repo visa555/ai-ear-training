@@ -886,8 +886,16 @@ legend {
   animation: pulse 1s ease-in-out infinite;
 }
 
-.quit {
+.top-actions {
+  display: flex;
+  gap: 6px;
   margin-left: auto;
+}
+
+.restart.armed {
+  background: var(--accent-soft);
+  border-color: var(--accent);
+  animation: pulse 0.8s ease-in-out infinite;
 }
 
 .progress {
@@ -1853,4 +1861,137 @@ legend {
   align-items: center;
   gap: 6px;
   font-weight: 600;
+}
+
+/* ========== timer ========== */
+
+.timer-select {
+  margin-top: 14px;
+}
+
+.card > .timer-select:first-child {
+  margin-top: 0;
+}
+
+.hint.left {
+  text-align: left;
+}
+
+.timer {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: -6px 0 16px;
+}
+
+.timer-num {
+  min-width: 3.2em;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.timer-track {
+  flex: 1;
+  height: 12px;
+  border-radius: 999px;
+  background: var(--surface-2);
+  overflow: hidden;
+}
+
+.timer-fill {
+  height: 100%;
+  border-radius: 999px;
+  background: var(--accent);
+  transition: width 0.1s linear, background 0.3s;
+}
+
+.timer.urgent .timer-num {
+  color: var(--warn);
+  animation: pulse 0.8s ease-in-out infinite;
+}
+
+.timer.urgent .timer-fill {
+  background: var(--warn);
+}
+
+.timer.paused {
+  opacity: 0.6;
+}
+
+.timer.paused .timer-num {
+  animation: none;
+}
+
+/* ========== toggle switch ========== */
+
+.toggle-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  width: 100%;
+  padding: 12px 14px;
+  text-align: left;
+  font-weight: 500;
+  background: var(--surface-2);
+  border-color: var(--border);
+}
+
+.toggle-row:hover:not(:disabled) {
+  background: var(--surface-2);
+  border-color: var(--accent);
+}
+
+.toggle-label small {
+  display: block;
+  color: var(--muted);
+  font-size: 0.85rem;
+}
+
+.toggle {
+  position: relative;
+  flex-shrink: 0;
+  width: 84px;
+  height: 40px;
+  border-radius: 999px;
+  background: var(--border-strong);
+  box-shadow: inset 0 2px 4px rgb(0 0 0 / 0.15);
+  transition: background 0.2s;
+}
+
+.toggle-row.on .toggle {
+  background: var(--accent);
+}
+
+.toggle-knob {
+  position: absolute;
+  top: 4px;
+  left: 4px;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 2px 4px rgb(0 0 0 / 0.25);
+  transition: transform 0.2s ease-out;
+}
+
+.toggle-row.on .toggle-knob {
+  transform: translateX(44px);
+}
+
+.toggle-text {
+  position: absolute;
+  top: 50%;
+  right: 12px;
+  transform: translateY(-50%);
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.toggle-row.on .toggle-text {
+  right: auto;
+  left: 12px;
+  color: var(--accent-text);
 }

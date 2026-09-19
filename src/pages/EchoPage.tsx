@@ -3,6 +3,8 @@ import { ensureAudio } from '../audio/engine'
 import { EchoPlay, type EchoConfig } from '../components/EchoPlay'
 import { KeySelector } from '../components/KeySelector'
 import { Mascot } from '../components/Mascot'
+import { TimerSelect } from '../components/TimerControls'
+import { ToggleSwitch } from '../components/ToggleSwitch'
 import { LEVELS } from '../content/levels'
 import { echoStars } from '../echo/logic'
 import { echoRecordId, loadEchoBest, saveEchoBest } from '../storage/echoRecords'
@@ -25,6 +27,7 @@ type Stage = { name: 'setup' } | { name: 'play'; config: EchoConfig; best: numbe
 export function EchoPage({ keyDef, onKeyChange, labelMode }: Props) {
   const [degrees, setDegrees] = useState<number[]>([1, 3, 5])
   const [lights, setLights] = useState(true)
+  const [timeLimit, setTimeLimit] = useState(0)
   const [loading, setLoading] = useState(false)
   const [stage, setStage] = useState<Stage>({ name: 'setup' })
   const notes = scaleNotes(keyDef)
@@ -37,7 +40,7 @@ export function EchoPage({ keyDef, onKeyChange, labelMode }: Props) {
     setLoading(true)
     await ensureAudio()
     setLoading(false)
-    begin({ key: keyDef, degrees, labelMode, lights })
+    begin({ key: keyDef, degrees, labelMode, lights, timeLimit })
   }
 
   if (stage.name === 'play') {
@@ -46,6 +49,7 @@ export function EchoPage({ keyDef, onKeyChange, labelMode }: Props) {
         key={stage.round}
         config={stage.config}
         best={stage.best}
+        onRestart={() => begin(stage.config, Date.now())}
         onQuit={() => setStage({ name: 'setup' })}
         onFinish={(longest) => {
           const id = echoRecordId(stage.config.key, stage.config.degrees)
@@ -126,12 +130,11 @@ export function EchoPage({ keyDef, onKeyChange, labelMode }: Props) {
       </div>
 
       <div className="card">
-        <label className="switch">
-          <input type="checkbox" checked={lights} onChange={(e) => setLights(e.target.checked)} />
-          <span>
-            👀 <b>ให้เปียโนกระพริบตาม</b> (โหมดง่าย) · ปิดไว้ถ้าอยากฝึกฟังด้วยหูอย่างเดียว
-          </span>
-        </label>
+        <ToggleSwitch checked={lights} onChange={setLights}>
+          👀 <b>ให้เปียโนกระพริบตาม</b> (โหมดง่าย)
+          <small>ปิดไว้ถ้าอยากฝึกฟังด้วยหูอย่างเดียว</small>
+        </ToggleSwitch>
+        <TimerSelect value={timeLimit} onChange={setTimeLimit} unit="ต่อโน้ต" />
         {best > 0 && <p className="record-line">🏅 สถิติสูงสุดของด่านและคีย์นี้: {best} โน้ต</p>}
       </div>
 
