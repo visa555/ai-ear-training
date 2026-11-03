@@ -86,7 +86,7 @@ export function ExplorerPage({ keyDef, onKeyChange, labelMode, onLabelModeChange
           <div>
             <h2 className="key-title">คีย์ {keyName(keyDef)}</h2>
             <p className="muted">
-              🏠 โน้ตบ้านคือ <b>{prettyNote(home.pc)}</b> · {signatureText(info)} · คีย์คู่หู: {info.relative}
+              🏠 โน้ตรูทคือ <b>{prettyNote(home.pc)}</b> · {signatureText(info)} · คีย์คู่หู: {info.relative}
             </p>
             {keyDef.mode === 'harmonic' && <p className="muted">✨ ตัวที่ 7 ถูกยกขึ้นครึ่งเสียง ให้อยากกลับบ้านมากขึ้น</p>}
             {keyDef.mode === 'melodic' && <p className="muted">✨ ขาขึ้นยกตัวที่ 6 และ 7 · ขาลงกลับเป็นไมเนอร์ธรรมดา</p>}

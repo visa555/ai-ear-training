@@ -116,7 +116,7 @@ describe('โครงสร้างของแพทเทิร์น', () =
     }
   })
 
-  it('ทุกรูปมีโน้ตบ้านอย่างน้อยหนึ่งจุด', () => {
+  it('ทุกรูปมีโน้ตรูทอย่างน้อยหนึ่งจุด', () => {
     for (const key of SCALE_KEYS) {
       for (const shape of CAGED_ORDER) {
         expect(buildPattern(key, shape).positions.some((n) => n.root), `${key.tonic} ${shape}`).toBe(true)
@@ -173,7 +173,7 @@ describe('คีย์อื่นใช้รูปนิ้วเดียว�
     }
   })
 
-  it('โน้ตบ้านอยู่บนสายประจำรูปคอร์ดนั้น', () => {
+  it('โน้ตรูทอยู่บนสายประจำรูปคอร์ดนั้น', () => {
     for (const key of SCALE_KEYS) {
       for (const shape of CAGED_ORDER) {
         const p = buildPattern(key, shape)
@@ -183,7 +183,7 @@ describe('คีย์อื่นใช้รูปนิ้วเดียว�
     }
   })
 
-  it('ทุกคีย์ไมเนอร์คู่หูใช้ตำแหน่งเดียวกัน แต่คนละโน้ตบ้าน', () => {
+  it('ทุกคีย์ไมเนอร์คู่หูใช้ตำแหน่งเดียวกัน แต่คนละโน้ตรูท', () => {
     for (const key of SCALE_KEYS) {
       const rel = relativeKey(key)
       for (const shape of CAGED_ORDER) {
@@ -202,7 +202,7 @@ describe('ความสัมพันธ์ major ↔ minor', () => {
     }
   })
 
-  it('ต่างกันแค่โน้ตบ้าน: C major บ้านคือ C ส่วน A minor บ้านคือ A', () => {
+  it('ต่างกันแค่โน้ตรูท: C major รูทคือ C ส่วน A minor รูทคือ A', () => {
     const major = buildPattern(C, 'E').positions.filter((n) => n.root)
     const minor = buildPattern(Am, 'E').positions.filter((n) => n.root)
     expect(new Set(major.map((n) => n.pc))).toEqual(new Set(['C']))

@@ -223,7 +223,7 @@ export function QuizRunner(props: Props) {
       <div className="actions">
         <button onClick={() => playQuestion(false)}>🔁 ฟังอีกครั้ง</button>
         <button onClick={() => playQuestion(true)}>🎶 ฟังเพลงบอกบ้าน</button>
-        <button onClick={() => run([{ midis: [root], duration: 1.2 }], true)}>🏠 ฟังโน้ตบ้าน</button>
+        <button onClick={() => run([{ midis: [root], duration: 1.2 }], true)}>🏠 ฟังโน้ตรูท</button>
         {answered && <button onClick={playResolution}>🪜 พากลับบ้าน</button>}
         {answered && (
           <button className="primary" onClick={onNext}>
