@@ -1,9 +1,12 @@
 import { Note } from '@tonaljs/tonal'
 import { noteAt, STRINGS } from '../guitar/fretboard'
-import { scaleNotes, type KeyDef } from '../theory/keys'
+import { MAJOR_TONICS, scaleNotes, type KeyDef } from '../theory/keys'
 
-/** คอกีตาร์ในบทเรียนสเกลยาวถึงเฟรต 15 เพราะแพทเทิร์นสุดท้ายเลยเฟรต 12 */
-export const SCALE_MAX_FRET = 15
+/**
+ * คอกีตาร์ในบทเรียนสเกลยาวถึงเฟรต 16
+ * คีย์ A♭ E♭ B♭ มีกรอบที่ตกที่เฟรต 0 จึงถูกเลื่อนขึ้นออกเทฟ กินถึงเฟรต 16 พอดี
+ */
+export const SCALE_MAX_FRET = 16
 
 /** รูปคอร์ดที่ใช้ตั้งชื่อแพทเทิร์น (ระบบ CAGED) */
 export type CagedShape = 'C' | 'A' | 'G' | 'E' | 'D'
@@ -26,14 +29,8 @@ const MAX_PER_STRING = 3
 
 export const CAGED_ORDER: CagedShape[] = ['C', 'A', 'G', 'E', 'D']
 
-/** คีย์ยอดนิยมบนกีตาร์ และคีย์ไมเนอร์คู่หูของมัน */
-export const SCALE_KEYS: KeyDef[] = [
-  { tonic: 'G', mode: 'major' },
-  { tonic: 'C', mode: 'major' },
-  { tonic: 'D', mode: 'major' },
-  { tonic: 'A', mode: 'major' },
-  { tonic: 'E', mode: 'major' },
-]
+/** ครบ 12 คีย์ เรียงตาม circle of fifths เหมือนหน้ารู้จักโน้ต (ไมเนอร์คู่หูใช้แพทเทิร์นชุดเดียวกัน) */
+export const SCALE_KEYS: KeyDef[] = MAJOR_TONICS.map((tonic) => ({ tonic, mode: 'major' }))
 
 export interface ScalePosition {
   string: number

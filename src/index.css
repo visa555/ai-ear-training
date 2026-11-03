@@ -2486,7 +2486,7 @@ h3.first {
 
 .caged-row {
   display: grid;
-  grid-template-columns: repeat(5, 1fr);
+  grid-template-columns: repeat(5, minmax(0, 1fr));
   gap: 8px;
   margin-bottom: 16px;
 }
@@ -2530,5 +2530,8 @@ h3.first {
 
   .caged small {
     font-size: 0.68rem;
+    /* จอแคบให้ช่วงเฟรตสองหลักขึ้นบรรทัดใหม่แทนที่จะดันปุ่มสุดท้ายออกนอกจอ */
+    white-space: normal;
+    text-align: center;
   }
 }
