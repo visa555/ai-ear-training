@@ -1,8 +1,17 @@
 import { useState, type CSSProperties } from 'react'
+import { Fretboard, type FretMark } from '../components/Fretboard'
 import { Staff } from '../components/Staff'
+import { MAX_FRET, noteAt } from '../guitar/fretboard'
 import { fixedSolfege, naturalRange, shortPosition } from '../notation/staff'
 import { starsFor, type Tally } from '../quiz/generator'
 import { clearProgress, keyId, loadProgress, parseKeyId, type Progress } from '../storage/progress'
+import { clearGuitarProgress, loadGuitarProgress, type GuitarMode, type GuitarProgress } from '../storage/guitarProgress'
+
+const GUITAR_MODE_LABEL: Record<GuitarMode, string> = {
+  find: 'หาโน้ตบนคอ',
+  name: 'ช่องนี้ชื่ออะไร',
+  listen: 'ฟังแล้วหาบนคอ',
+}
 import { clearReadingProgress, loadReadingProgress, type ReadingProgress } from '../storage/readingProgress'
 import { DEGREES, keyName, MAJOR_TONICS, MINOR_TONICS, MODES, scaleNotes, type KeyDef } from '../theory/keys'
 
@@ -212,21 +221,101 @@ function ReadingStats({ progress }: { progress: ReadingProgress }) {
   )
 }
 
+function GuitarStats({ progress }: { progress: GuitarProgress }) {
+  const { sessions, byPosition } = progress
+  const practiced = Object.entries(byPosition).filter(([, t]) => t.total > 0)
+
+  const marks: Record<string, FretMark> = {}
+  for (const [id, tally] of practiced) {
+    const [string, fret] = id.split('-').map(Number)
+    const note = noteAt(string, fret)
+    const pct = pctOf(tally)
+    marks[id] = {
+      label: note.pc,
+      className: `bin-${binOf(pct)}`,
+      state: 'hint',
+      title: `สาย ${string} เฟรต ${fret} (${note.pc}) · ถูก ${tally.correct} จาก ${tally.total} ครั้ง = ${pct}%`,
+    }
+  }
+
+  const weakest = practiced
+    .filter(([, t]) => pctOf(t) < 80)
+    .sort((a, b) => pctOf(a[1]) - pctOf(b[1]))
+    .slice(0, 3)
+    .map(([id]) => {
+      const [string, fret] = id.split('-').map(Number)
+      return { id, string, fret, note: noteAt(string, fret) }
+    })
+
+  return (
+    <>
+      <h2 className="section-title">🎸 คอกีตาร์</h2>
+      <Tiles
+        items={[
+          { label: '🎮 เล่นไปแล้ว (รอบ)', value: sessions.length },
+          { label: '🎸 หาโน้ต (ข้อ)', value: sessions.reduce((sum, s) => sum + s.total, 0) },
+          { label: '🎯 ตอบถูก', value: `${pctOfTotals(sessions)}%` },
+        ]}
+      />
+
+      <div className="card">
+        <h2>🗺️ ช่องไหนจำได้แล้ว ช่องไหนต้องฝึกอีก</h2>
+        <p className="muted">สีบอกว่าตอบถูกบ่อยแค่ไหน (ดูแถบสีข้างล่าง) · ช่องว่างคือยังไม่เคยเจอ · ชี้ที่ช่องเพื่อดูจำนวนครั้ง</p>
+        <div className="fretboard-scroll">
+          <Fretboard frets={MAX_FRET} marks={marks} ariaLabel="ความแม่นยำของแต่ละช่องบนคอกีตาร์" />
+        </div>
+        <Legend />
+        {weakest.length > 0 && (
+          <p className="focus-line">
+            💪 ช่องที่ควรฝึกเพิ่ม:{' '}
+            {weakest.map((w) => (
+              <b key={w.id} className={`chip deg-${w.note.letterIndex + 1}`}>
+                {w.note.pc} <small>(สาย {w.string} เฟรต {w.fret})</small>
+              </b>
+            ))}
+          </p>
+        )}
+      </div>
+
+      <div className="card">
+        <h2>📅 เล่นล่าสุด</h2>
+        <ul className="history">
+          {sessions.slice(0, 10).map((s) => (
+            <li key={s.at}>
+              <span className="muted">{dateFmt.format(new Date(s.at))}</span>
+              <span>
+                🎸 {s.level} · {GUITAR_MODE_LABEL[s.mode]}
+              </span>
+              <span className="num">
+                {s.correct}/{s.total} {'★'.repeat(starsFor(Math.round((s.correct / s.total) * 100)))}
+              </span>
+            </li>
+          ))}
+        </ul>
+      </div>
+    </>
+  )
+}
+
 export function StatsPage() {
   const [progress, setProgress] = useState<Progress>(loadProgress)
   const [reading, setReading] = useState<ReadingProgress>(loadReadingProgress)
+  const [guitar, setGuitar] = useState<GuitarProgress>(loadGuitarProgress)
   const hasQuiz = progress.sessions.length > 0
   const hasReading = reading.sessions.length > 0
+  const hasGuitar = guitar.sessions.length > 0
 
   const reset = () => {
-    if (!window.confirm('ล้างผลงานทั้งหมด (ทั้งเกมทายโน้ตและอ่านโน้ต)? การกระทำนี้ย้อนกลับไม่ได้')) return
+    if (!window.confirm('ล้างผลงานทั้งหมด (ทุกเกม)? การกระทำนี้ย้อนกลับไม่ได้')) return
     clearProgress()
     clearReadingProgress()
+    clearGuitarProgress()
     setProgress(loadProgress())
     setReading(loadReadingProgress())
+    setGuitar(loadGuitarProgress())
   }
 
-  if (!hasQuiz && !hasReading) {
+  if (!hasQuiz && !hasReading && !hasGuitar) {
     return (
       <section className="page">
         <div className="card empty">
@@ -244,6 +333,7 @@ export function StatsPage() {
     <section className="page">
       {hasQuiz ? <QuizStats progress={progress} /> : <p className="muted">🎯 ยังไม่ได้เล่นเกมทายโน้ต</p>}
       {hasReading ? <ReadingStats progress={reading} /> : <p className="muted">🎼 ยังไม่ได้เล่นเกมอ่านโน้ต</p>}
+      {hasGuitar ? <GuitarStats progress={guitar} /> : <p className="muted">🎸 ยังไม่ได้เล่นเกมคอกีตาร์</p>}
 
       <div className="actions center">
         <button className="ghost danger" onClick={reset}>

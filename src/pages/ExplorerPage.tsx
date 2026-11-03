@@ -3,6 +3,8 @@ import { cadenceSteps, tonicChord } from '../audio/cadence'
 import { ensureAudio, playNotes, playSequence, stopAll, type Step } from '../audio/engine'
 import { KeySelector } from '../components/KeySelector'
 import { LabelModeToggle } from '../components/LabelModeToggle'
+import { GuitarLesson } from '../components/GuitarLesson'
+import { ScaleLesson } from '../scale/ScaleLesson'
 import { Mascot } from '../components/Mascot'
 import { PianoKeyboard, type KeyMark } from '../components/PianoKeyboard'
 import {
@@ -130,6 +132,9 @@ export function ExplorerPage({ keyDef, onKeyChange, labelMode, onLabelModeChange
           “เพลงบอกบ้าน” คือคอร์ด {minor ? 'i–iv–V–i' : 'I–IV–V–I'} (cadence) ที่ช่วยให้หูรู้ว่าบ้านอยู่ที่ไหน
         </p>
       </div>
+
+      <GuitarLesson />
+      <ScaleLesson />
     </section>
   )
 }

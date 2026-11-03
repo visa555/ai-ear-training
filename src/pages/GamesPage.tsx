@@ -5,6 +5,8 @@ import type { KeyDef, LabelMode } from '../theory/keys'
 import { EchoPage } from './EchoPage'
 import { QuizPage } from './QuizPage'
 import { ReadingPage } from './ReadingPage'
+import { GuitarPage } from './GuitarPage'
+import { RhythmPage } from './RhythmPage'
 
 interface Props {
   keyDef: KeyDef
@@ -13,12 +15,14 @@ interface Props {
   onLabelModeChange: (mode: LabelMode) => void
 }
 
-type Game = 'quiz' | 'echo' | 'reading'
+type Game = 'quiz' | 'echo' | 'reading' | 'rhythm' | 'guitar'
 
 const GAMES: { value: Game; icon: string; title: string; desc: string }[] = [
   { value: 'quiz', icon: '🎯', title: 'เกมทายโน้ต', desc: 'ฟังโน้ตที่ซ่อนอยู่ แล้วทายว่าเป็นตัวไหน' },
   { value: 'echo', icon: '🦉', title: 'เลียนเสียงน้องฮูก', desc: 'ฟังทำนอง แล้วกดตามให้ถูก ยิ่งเล่นยิ่งยาวขึ้น!' },
   { value: 'reading', icon: '🎼', title: 'พาโน้ตกลับบ้าน', desc: 'อ่านโน้ตบนบรรทัด 5 เส้น แล้วบอกชื่อให้ถูก' },
+  { value: 'rhythm', icon: '🥁', title: 'ทายจังหวะโน้ต', desc: 'ฟังเสียงแล้วบอกว่าเป็นโน้ตตัวไหน ยาวกี่จังหวะ' },
+  { value: 'guitar', icon: '🎸', title: 'หาโน้ตบนคอกีตาร์', desc: 'บอกชื่อโน้ตกับสาย แล้วหาช่องให้ถูกบนคอ' },
 ]
 
 export function GamesPage(props: Props) {
@@ -50,6 +54,24 @@ export function GamesPage(props: Props) {
       <section className="page">
         {back}
         <EchoPage keyDef={props.keyDef} onKeyChange={props.onKeyChange} labelMode={props.labelMode} />
+      </section>
+    )
+  }
+
+  if (game === 'guitar') {
+    return (
+      <section className="page">
+        {back}
+        <GuitarPage />
+      </section>
+    )
+  }
+
+  if (game === 'rhythm') {
+    return (
+      <section className="page">
+        {back}
+        <RhythmPage />
       </section>
     )
   }

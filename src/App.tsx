@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { stopAll, type AudioStatus } from './audio/engine'
 import { useAudioStatus } from './audio/useAudio'
 import { TopNav, type NavItem } from './components/TopNav'
+import { RhythmLesson } from './components/RhythmLesson'
 import { StaffLesson } from './components/StaffLesson'
 import { ExplorerPage } from './pages/ExplorerPage'
 import { GamesPage } from './pages/GamesPage'
@@ -48,6 +49,7 @@ export default function App() {
         {tab === 'reading' && (
           <section className="page">
             <StaffLesson />
+            <RhythmLesson />
           </section>
         )}
         {tab === 'quiz' && <GamesPage {...shared} />}

@@ -1,4 +1,6 @@
 import * as Tone from 'tone'
+import { stopGuitar } from './guitar'
+import { stopRhythm } from './rhythm'
 
 /** เสียงเปียโน Salamander Grand Piano (ฟรี) ที่ Tone.js โฮสต์ไว้ */
 const SAMPLE_BASE_URL = 'https://tonejs.github.io/audio/salamander/'
@@ -126,4 +128,6 @@ export async function playSequence(steps: Step[], onStep?: (midis: number[]) => 
 export function stopAll() {
   generation++
   instrument?.releaseAll()
+  stopRhythm()
+  stopGuitar()
 }

@@ -1995,3 +1995,540 @@ legend {
   left: 12px;
   color: var(--accent-text);
 }
+
+/* ========== rhythm ========== */
+
+.rhythm-glyph {
+  display: block;
+  width: 56px;
+  height: 56px;
+}
+
+.rhythm-glyph.big {
+  width: 96px;
+  height: 96px;
+}
+
+.rg-line {
+  stroke: var(--muted);
+  stroke-width: 1.4;
+  opacity: 0.6;
+}
+
+.rg-head {
+  fill: var(--text);
+  stroke: var(--text);
+  stroke-width: 1.2;
+}
+
+.rg-head.hollow {
+  fill: var(--surface);
+  stroke-width: 3;
+}
+
+.rg-stem {
+  stroke: var(--text);
+  stroke-width: 2.2;
+}
+
+.rg-beam,
+.rg-dot,
+.rg-flag {
+  fill: var(--text);
+}
+
+/* รูปใหญ่บนเวที: ระบายหัวโน้ตด้วยสีประจำตัวโน้ต */
+.rhythm-glyph.big .rg-head:not(.hollow) {
+  fill: var(--deg);
+}
+
+.rhythm-glyph.big .rg-head.hollow {
+  fill: var(--surface);
+  stroke: var(--deg);
+}
+
+.rhythm-stage {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 22px;
+  flex-wrap: wrap;
+  padding: 14px;
+  margin-bottom: 18px;
+  border-radius: 20px;
+  background: var(--surface-2);
+  min-height: 132px;
+}
+
+.stage-hint {
+  font-size: 3rem;
+  width: 96px;
+  text-align: center;
+}
+
+.beat-dots {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+
+.beat-count {
+  display: flex;
+  gap: 16px;
+  font-weight: 700;
+  color: var(--muted);
+  opacity: 0.45;
+  transition: opacity 0.2s;
+}
+
+.beat-count.on {
+  opacity: 1;
+}
+
+.beat-count span {
+  width: 24px;
+  text-align: center;
+  transition: transform 0.1s;
+}
+
+.beat-count span.now {
+  color: var(--accent);
+  transform: scale(1.5);
+}
+
+.beat-row {
+  display: flex;
+  gap: 10px;
+}
+
+.beat {
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  font-weight: 700;
+  color: var(--muted);
+  background: var(--surface);
+  border: 3px dashed var(--border-strong);
+  transition: background 0.12s, transform 0.12s;
+}
+
+.beat.current {
+  border-style: solid;
+  border-color: var(--accent);
+  transform: scale(1.12);
+}
+
+.beat.filled {
+  background: var(--deg);
+  border: 3px solid rgb(43 35 80 / 0.25);
+  color: var(--deg-ink);
+}
+
+
+.rhythm-cards,
+.rhythm-answers {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.rhythm-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: 10px 6px 12px;
+  border-radius: 20px;
+  border-bottom-width: 6px;
+}
+
+.rhythm-card .rhythm-glyph {
+  width: 64px;
+  height: 64px;
+}
+
+.rhythm-card.playing {
+  border-color: var(--deg);
+  background: var(--accent-soft);
+}
+
+.rc-name {
+  font-weight: 700;
+  font-size: 1.1rem;
+}
+
+.rc-name::before {
+  content: '';
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  margin-right: 6px;
+  border-radius: 50%;
+  background: var(--deg);
+  vertical-align: middle;
+}
+
+.rc-beats {
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+.rc-syllable {
+  font-size: 0.85rem;
+}
+
+.rhythm-card kbd {
+  position: absolute;
+  top: 6px;
+  left: 8px;
+  font-family: inherit;
+  font-size: 0.72rem;
+  color: var(--muted);
+}
+
+.rhythm-answers .rhythm-card:disabled {
+  opacity: 0.6;
+}
+
+.rhythm-answers .rhythm-card.right {
+  opacity: 1;
+  outline: 4px solid var(--good);
+  outline-offset: 2px;
+}
+
+.rhythm-answers .rhythm-card.wrong {
+  opacity: 1;
+  outline: 4px dashed var(--bad);
+  outline-offset: 2px;
+}
+
+.rhythm-answers .rhythm-card.dim {
+  opacity: 0.35;
+}
+
+.rhythm-card .mark {
+  position: absolute;
+  top: -12px;
+  right: -8px;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  color: #fff;
+  font-weight: 700;
+  background: var(--good);
+  border: 3px solid var(--surface);
+}
+
+.rhythm-card.wrong .mark {
+  background: var(--bad);
+}
+
+.level-glyphs {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  margin: 2px 0;
+}
+
+.level-glyphs .rhythm-glyph {
+  width: 34px;
+  height: 34px;
+}
+
+@media (max-width: 560px) {
+  .beat {
+    width: 40px;
+    height: 40px;
+  }
+
+  .rhythm-cards,
+  .rhythm-answers {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .level-glyphs .rhythm-glyph {
+    width: 24px;
+    height: 24px;
+  }
+}
+
+/* จังหวะมี 5 ด่าน */
+.levels.five {
+  grid-template-columns: repeat(5, 1fr);
+}
+
+@media (max-width: 700px) {
+  .levels.five {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+/* ========== guitar fretboard ========== */
+
+:root {
+  --fb-wood: #c89b6a;
+  --fb-wood-edge: #8d6239;
+  --fb-string: #cfc6b4;
+  --fb-fret: #e8e4dc;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --fb-wood: #6b4a2f;
+    --fb-wood-edge: #3b2718;
+    --fb-string: #d9d2c4;
+    --fb-fret: #cbc4b8;
+  }
+}
+
+.fretboard-scroll {
+  overflow-x: auto;
+  padding-bottom: 4px;
+}
+
+.fretboard {
+  display: block;
+  width: 100%;
+  max-height: 260px;
+  touch-action: manipulation;
+  user-select: none;
+}
+
+.fb-board {
+  fill: var(--fb-wood);
+  stroke: var(--fb-wood-edge);
+  stroke-width: 2;
+}
+
+.fb-nut {
+  fill: var(--fb-fret);
+  stroke: var(--fb-wood-edge);
+  stroke-width: 1;
+}
+
+.fb-fret {
+  stroke: var(--fb-fret);
+  stroke-width: 2.5;
+}
+
+.fb-inlay {
+  fill: #fff;
+  opacity: 0.55;
+}
+
+.fb-string line {
+  stroke: var(--fb-string);
+}
+
+.fb-string.dim {
+  opacity: 0.35;
+}
+
+.fb-string-label {
+  font-family: 'Mali', sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  fill: var(--muted);
+}
+
+.fb-fret-num {
+  font-family: 'Mali', sans-serif;
+  font-size: 12px;
+  font-weight: 700;
+  fill: var(--muted);
+}
+
+.fretboard.interactive .fb-cell:not(.dim) {
+  cursor: pointer;
+}
+
+.fb-cell .hit {
+  fill: transparent;
+}
+
+.fb-cell.dim {
+  opacity: 0.3;
+}
+
+.fb-dot {
+  fill: var(--surface);
+  stroke: var(--text);
+  stroke-width: 1.5;
+}
+
+.fb-cell[class*='deg-'] .fb-dot {
+  fill: var(--deg);
+}
+
+.fb-cell.hint .fb-dot {
+  opacity: 0.85;
+}
+
+.fb-cell.correct .fb-dot {
+  fill: var(--good);
+  stroke: var(--good);
+}
+
+.fb-cell.wrong .fb-dot {
+  fill: var(--bad);
+  stroke: var(--bad);
+}
+
+.fb-dot-label {
+  font-family: 'Mali', sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  fill: var(--deg-ink);
+  pointer-events: none;
+}
+
+.fb-cell.correct .fb-dot-label,
+.fb-cell.wrong .fb-dot-label {
+  fill: #fff;
+}
+
+.note-pick {
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  gap: 6px;
+  margin-bottom: 8px;
+}
+
+.note-pick button {
+  padding: 10px 4px;
+  font-size: 1.2rem;
+  font-weight: 700;
+  background: var(--deg);
+  color: var(--deg-ink);
+  border-color: rgb(43 35 80 / 0.22);
+}
+
+.note-pick button.selected {
+  outline: 4px solid var(--accent);
+  outline-offset: 2px;
+}
+
+@media (max-width: 560px) {
+  .note-pick {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+/* หัวจุดบนคอกีตาร์ในหน้าสถิติ: ระบายตามระดับความแม่นยำ */
+.fb-cell.bin-0 .fb-dot { fill: var(--seq-0); }
+.fb-cell.bin-1 .fb-dot { fill: var(--seq-1); }
+.fb-cell.bin-2 .fb-dot { fill: var(--seq-2); }
+.fb-cell.bin-3 .fb-dot { fill: var(--seq-3); }
+.fb-cell.bin-4 .fb-dot { fill: var(--seq-4); }
+
+.fb-cell.bin-0 .fb-dot-label,
+.fb-cell.bin-1 .fb-dot-label,
+.fb-cell.bin-2 .fb-dot-label { fill: var(--seq-ink-0); }
+
+.fb-cell.bin-3 .fb-dot-label,
+.fb-cell.bin-4 .fb-dot-label { fill: var(--seq-ink-4); }
+
+/* ช่องที่กำลังถามในเกม “ช่องนี้ชื่ออะไร” */
+.fb-cell.ask .fb-dot {
+  fill: var(--accent);
+  stroke: var(--accent-press);
+  stroke-width: 2.5;
+  animation: pulse 1s ease-in-out infinite;
+  transform-box: fill-box;
+  transform-origin: center;
+}
+
+.fb-cell.ask .fb-dot-label {
+  fill: var(--accent-text);
+  font-size: 13px;
+}
+
+/* ด่านกีตาร์มี 4 ด่าน · แบบเล่น 2 แบบ */
+.mode-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 10px;
+}
+
+.letter-pad .swatch-dot {
+  display: block;
+  width: 12px;
+  height: 12px;
+  margin-top: 4px;
+  border-radius: 50%;
+  background: var(--deg);
+}
+
+/* ปุ่มโน้ตติดชาร์ปในบทเรียน: สีเดียวกับตัวอักษรหน้ามัน แต่ทึบน้อยกว่าและมีขอบประ */
+.note-pick button.sharp {
+  background: color-mix(in srgb, var(--deg) 55%, var(--surface));
+  border-style: dashed;
+}
+
+@media (max-width: 560px) {
+  .note-pick {
+    grid-template-columns: repeat(6, 1fr);
+  }
+}
+
+/* ========== scale lesson ========== */
+
+h3.first {
+  margin-top: 0;
+}
+
+.caged-row {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.caged {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: 10px 4px;
+  border-radius: 18px;
+}
+
+.caged-letter {
+  font-size: 1.6rem;
+  font-weight: 700;
+  line-height: 1.1;
+  color: var(--accent);
+}
+
+.caged.selected .caged-letter {
+  color: var(--accent-press);
+}
+
+.caged small {
+  color: var(--muted);
+  font-size: 0.75rem;
+  white-space: nowrap;
+}
+
+/* โน้ตในสเกลที่อยู่นอกแพทเทิร์นปัจจุบัน */
+.fb-cell.faded .fb-dot,
+.fb-cell.faded .fb-dot-label {
+  opacity: 0.32;
+}
+
+@media (max-width: 560px) {
+  .caged-letter {
+    font-size: 1.3rem;
+  }
+
+  .caged small {
+    font-size: 0.68rem;
+  }
+}
