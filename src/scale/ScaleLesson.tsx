@@ -60,7 +60,7 @@ export function ScaleLesson() {
     setSpeech(
       <>
         ไล่สเกล <b>{keyName(key)}</b> แพทเทิร์นรูป <b>{shape}</b> {descending ? 'จากสูงลงต่ำ' : 'จากต่ำขึ้นสูง'}{' '}
-        ดูโน้ตรูทสีเข้มให้ดีนะ 🏠
+        ดูโน้ตรูทวงสีแดงให้ดีนะ 🏠
       </>,
     )
     for (const [i, note] of notes.entries()) {
@@ -96,10 +96,10 @@ export function ScaleLesson() {
   }
 
   const markOf = (note: ScalePosition, faded: boolean): FretMark => ({
-    state: note.root ? 'correct' : 'hint',
+    state: 'hint',
     root: note.root,
     label: prettyNote(note.pc),
-    className: `${faded ? 'faded ' : ''}deg-${note.letterIndex + 1}`,
+    className: `${faded ? 'faded ' : ''}${note.root ? 'scale-root ' : ''}deg-${note.letterIndex + 1}`,
     title: `สาย ${note.string} เฟรต ${note.fret} · ${prettyNote(note.pc)} (ขั้นที่ ${note.degree})`,
   })
 
@@ -170,7 +170,7 @@ export function ScaleLesson() {
             ariaLabel={`สเกล ${keyName(key)} แพทเทิร์นรูป ${shape}`}
           />
         </div>
-        <p className="hint">👆 แตะจุดบนคอเพื่อฟังเสียงและดูว่าเป็นขั้นที่เท่าไร · วงใหญ่สีเข้มคือโน้ตรูท 🏠</p>
+        <p className="hint">👆 แตะจุดบนคอเพื่อฟังเสียงและดูว่าเป็นขั้นที่เท่าไร · วงใหญ่สีแดงคือโน้ตรูท 🏠</p>
 
         <ToggleSwitch checked={wholeNeck} onChange={setWholeNeck}>
           🗺️ <b>ดูโน้ตในสเกลทั้งคอ</b>

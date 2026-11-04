@@ -2277,6 +2277,9 @@ legend {
   --fb-wood-edge: #8d6239;
   --fb-string: #cfc6b4;
   --fb-fret: #e8e4dc;
+  /* โน้ตรูท: แดงเสมอ ไม่เกี่ยวกับสีประจำโน้ต และคู่กันกับวงที่ใหย่กว่า */
+  --fb-root: #d92d20;
+  --fb-root-ink: #ffffff;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -2285,6 +2288,9 @@ legend {
     --fb-wood-edge: #3b2718;
     --fb-string: #d9d2c4;
     --fb-fret: #cbc4b8;
+    /* จอมืดใช้แดงสว่างขึ้น ตัวหนังสือสีเข้มเหมือนจุดอื่น */
+    --fb-root: #ff6b6b;
+    --fb-root-ink: #2b2350;
   }
 }
 
@@ -2381,6 +2387,13 @@ legend {
   stroke: var(--bad);
 }
 
+/* โน้ตรูทของคีย์ (หน้าสเกล) วงใหย่สีแดง */
+.fb-cell.scale-root .fb-dot {
+  fill: var(--fb-root);
+  stroke: var(--fb-root);
+  stroke-width: 2;
+}
+
 .fb-dot-label {
   font-family: 'Mali', sans-serif;
   font-size: 11px;
@@ -2392,6 +2405,10 @@ legend {
 .fb-cell.correct .fb-dot-label,
 .fb-cell.wrong .fb-dot-label {
   fill: #fff;
+}
+
+.fb-cell.scale-root .fb-dot-label {
+  fill: var(--fb-root-ink);
 }
 
 .note-pick {
